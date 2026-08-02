@@ -1,4 +1,4 @@
-from config_parser import ConfigParser
+from src.config_parser import ConfigParser
 from sys import argv
 
 
