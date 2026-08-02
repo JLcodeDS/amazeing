@@ -27,7 +27,7 @@ class MazeGenerator():
             wh_42 = ((self.width - w_42) // 2,
                      (self.height - h_42) // 2)
             for w, h in coords_42:
-                self.maze[wh_42[1] + h][wh_42[0] + w].visited = True
+                self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42()
 
 
 class Cell:
@@ -46,3 +46,9 @@ class Cell:
 
     def open_wall(self, direction: str) -> None:
         self.walls[direction] = 0
+
+
+class Cell42(Cell):
+    def __init__(self):
+        super().__init__()
+        self.visited = True
