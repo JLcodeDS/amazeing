@@ -48,9 +48,9 @@ class ConfigParser:
         if (w < 2 and h < 2) or (h < 1 or w < 1):
             raise Exception("Invalid dimensions for WIDTH or HEIGHT.")
         if (en_dim[0] < 0 or en_dim[0] > w) or (
-                en_dim[1] < 0 or en_dim[1] > w):
+                en_dim[1] < 0 or en_dim[1] > h):
             raise Exception(f"Invalid Entry coordinates: {en_dim}")
-        if (ex_dim[0] < 0 or ex_dim[0] > h) or (
+        if (ex_dim[0] < 0 or ex_dim[0] > w) or (
                 ex_dim[1] < 0 or ex_dim[1] > h):
             raise Exception(f"Invalid Exit coordinates: {ex_dim}")
 
