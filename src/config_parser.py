@@ -45,7 +45,7 @@ class ConfigParser:
         h = conf["HEIGHT"]
         en_dim = conf["ENTRY"]
         ex_dim = conf["EXIT"]
-        if (w < 2 and h < 2) or (h < 1 or w < 1):
+        if (w < 3 and h < 3) or (h < 3 or w < 3):
             raise Exception("Invalid dimensions for WIDTH or HEIGHT.")
         if (en_dim[0] < 0 or en_dim[0] > w) or (
                 en_dim[1] < 0 or en_dim[1] > h):

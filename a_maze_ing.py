@@ -1,15 +1,28 @@
 from src.config_parser import ConfigParser
-from MazeGenerator import MazeGenerator
+from maze_generator import MazeGenerator, Cell42
 from sys import argv
 
 
 def print_maze(maze_gen: MazeGenerator):
-    for col in maze_gen.maze:
-        for row in col:
-            if row.visited:
-                print("0", end="")
+    r = [1] * (maze_gen.width * 2 + 1)
+    printable = [r]
+    for row in maze_gen.maze:
+        r_path = [1]
+        r_below = [1]
+        for c in row:
+            r_path.append(0)
+            r_path.append(c.walls["E"])
+            r_below.append(c.walls["S"])
+            r_below.append(1)
+        printable.append(r_path)
+        printable.append(r_below)
+
+    for row in printable:
+        for c in row:
+            if c:
+                print("\033[37m██\033[0m", end="")
             else:
-                print(" ", end="")
+                print("  ", end="")
         print()
 
 
@@ -24,8 +37,7 @@ def main():
         raise Exception(f"Error in parsing config file: {e}")
     conf_dict = {k.lower(): v for (k, v) in conf_dict.items()}
     mazeGen = MazeGenerator(**conf_dict)
-    mazeGen.initialize_maze()
-    mazeGen.make_42_cells()
+    mazeGen.generate_maze()
     print_maze(mazeGen)
 
 
