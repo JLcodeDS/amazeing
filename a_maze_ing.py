@@ -1,5 +1,5 @@
 from src.config_parser import ConfigParser
-from maze_generator import MazeGenerator, Cell42
+from maze_generator import MazeGenerator
 from sys import argv
 
 
@@ -42,8 +42,8 @@ def main():
 
 
 if __name__ == "__main__":
-    # try:
-    #     main()
-    # except Exception as e:
-    #     print(e)
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(e)
+    # main()
