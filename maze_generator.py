@@ -110,21 +110,32 @@ class MazeGenerator:
         current.visited = True
         self.perfect_backtrack(path_stack, current)
 
-    def imperfect_backtrack(self, path_stack: list[Cell], current: Cell) -> None:
-        if not len(path_stack):
-            return
-        choices = self.find_viable_choices(current)
-        if not len(choices):
-            current = path_stack.pop()
-            return self.perfect_backtrack(path_stack, current)
-        direction = random.choice(choices)
-        current.open_wall(direction)
-        path_stack.append(current)
-        move = current.get_move_coords(direction)
-        current = self.get_cell(move)
-        current.open_wall(self.wall_entry[direction])
-        current.visited = True
-        self.perfect_backtrack(path_stack, current)
+    def imperfect_wallbreak(self):
+        max_width = self.width - 1
+        max_height = self.height - 1
+        min_height = 0
+        min_width = 0
+        for i in range(0, max_height // 2):
+            for y in range(min_height, max_height):
+                if isinstance(self.maze[y][min_width], Cell42) or (
+                    isinstance(self.maze[y][max_width], Cell42)
+                ):
+                    continue
+                if y != self.maze_edges["S"]:
+                    self.maze[y][min_width].open_wall("S")
+                    self.maze[y][max_width].open_wall("S")
+            min_width += 2
+            max_width -= 2
+        for j in range(0, max_height // 2):
+            for x in range(min_width, max_width):
+                if isinstance(self.maze[min_height][x], Cell42) or (
+                   isinstance(self.maze[max_height][x], Cell42)):
+                    continue
+                if x != self.maze_edges["E"]:
+                    self.maze[min_height][x].open_wall("E")
+                    self.maze[max_height][x].open_wall("E")
+            min_height += 2
+            max_height -= 2
 
     def find_viable_choices(self, current: Cell) -> list[str]:
         choices = current.get_closed_walls()
