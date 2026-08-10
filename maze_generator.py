@@ -136,9 +136,34 @@ class MazeGenerator:
         self.enter_maze()
         self.write_output()
 
-    def write_output(self):
+    def write_output(self) -> None:
         lines = []
         for row in self.maze:
             lines.append("".join([c.get_hexa() for c in row]) + "\n")
+        lines += ["",
+                  f"{self.entry[0]},{self.entry[1]}",
+                  f"{self.exit[0]},{self.exit[1]}"]
         with open(self.output_file, "w") as output:
             output.writelines(lines)
+
+    def print_maze(self) -> None:
+        r = [1] * (self.width * 2 + 1)
+        printable = [r]
+        for row in self.maze:
+            r_path = [1]
+            r_below = [1]
+            for c in row:
+                r_path.append(0)
+                r_path.append(c.walls["E"])
+                r_below.append(c.walls["S"])
+                r_below.append(1)
+            printable.append(r_path)
+            printable.append(r_below)
+
+        for row in printable:
+            for c in row:
+                if c:
+                    print("\033[37m██\033[0m", end="")
+                else:
+                    print("  ", end="")
+            print()
