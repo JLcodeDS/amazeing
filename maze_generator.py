@@ -145,13 +145,14 @@ class MazeGenerator:
             output.writelines(lines)
 
     def print_maze(self) -> None:
+        # (Wall, path) combination
         MAZE_COLORS = [
             ("\033[96m██\033[0m", "\033[95m░░\033[0m"),
             ("\033[92m██\033[0m", "\033[32m▒▒\033[0m"),
             ("\033[93m██\033[0m", "\033[91m██\033[0m"),
-            ("\033[34m██\033[0m", "\033[97m░░\033[0m")
+            ("\033[37m██\033[0m", "\033[90m██\033[0m")
         ]
-        chosen_palette = MAZE_COLORS[0]
+        chosen_palette = MAZE_COLORS[3]
         # chosen_palette = random.choice(MAZE_COLORS)
         r = [1] * (self.width * 2 + 1)
         printable = [r]
