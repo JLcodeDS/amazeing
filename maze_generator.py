@@ -110,15 +110,31 @@ class MazeGenerator:
         current.visited = True
         self.perfect_backtrack(path_stack, current)
 
+    def imperfect_backtrack(self, path_stack: list[Cell], current: Cell) -> None:
+        if not len(path_stack):
+            return
+        choices = self.find_viable_choices(current)
+        if not len(choices):
+            current = path_stack.pop()
+            return self.perfect_backtrack(path_stack, current)
+        direction = random.choice(choices)
+        current.open_wall(direction)
+        path_stack.append(current)
+        move = current.get_move_coords(direction)
+        current = self.get_cell(move)
+        current.open_wall(self.wall_entry[direction])
+        current.visited = True
+        self.perfect_backtrack(path_stack, current)
+
     def find_viable_choices(self, current: Cell) -> list[str]:
         choices = current.get_closed_walls()
         viable_choices = choices.copy()
         for wall in choices:
-            if (wall == "S" or "N") and (
+            if (wall == "S" or wall == "N") and (
                     current.height == self.maze_edges[wall]):
                 viable_choices.remove(wall)
                 continue
-            if (wall == "E" or "W") and (
+            if (wall == "E" or wall == "W") and (
                     current.width == self.maze_edges[wall]):
                 viable_choices.remove(wall)
                 continue
@@ -148,7 +164,7 @@ class MazeGenerator:
         # (Wall, path) combination
         MAZE_COLORS = [
             ("\033[96m██\033[0m", "\033[95m░░\033[0m"),
-            ("\033[92m██\033[0m", "\033[32m▒▒\033[0m"),
+            ("\033[32m██\033[0m", "\033[92m▒▒\033[0m"),
             ("\033[93m██\033[0m", "\033[91m██\033[0m"),
             ("\033[37m██\033[0m", "\033[90m██\033[0m")
         ]
@@ -172,5 +188,5 @@ class MazeGenerator:
                 if c:
                     print(f"{chosen_palette[0]}", end="")
                 else:
-                    print(f"{chosen_palette[1]}", end="")
+                    print("  ", end="")
             print()
