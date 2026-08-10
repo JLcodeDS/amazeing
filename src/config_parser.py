@@ -32,9 +32,10 @@ class ConfigParser:
                         self._config_dict[keyval[0]] = self.config_type[
                             keyval[0]](keyval[1].replace("\n", ""))
                     except Exception:
+                        value_cln = keyval[1].replace('\n', '')
                         raise Exception(
                             "Key Value pair " +
-                            f"'{keyval[0]} : {keyval[1].replace('\n', '')}'" +
+                            f"'{keyval[0]} : {value_cln}'" +
                             "is not allowed.\nAllowed keys are: "
                             f"{list(self.config_type.keys())}"
                             )
