@@ -16,6 +16,7 @@ def main():
     mazeGen = MazeGenerator(**conf_dict)
     mazeGen.generate_maze()
     mazeGen.print_maze()
+    mazeGen.write_output()
 
 
 if __name__ == "__main__":

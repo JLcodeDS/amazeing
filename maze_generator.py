@@ -97,13 +97,11 @@ class MazeGenerator:
     def perfect_backtrack(self, path_stack: list[Cell], current: Cell) -> None:
         if not len(path_stack):
             return
-        print(f"coords: {current.coords}")
         choices = self.find_viable_choices(current)
         if not len(choices):
             current = path_stack.pop()
             return self.perfect_backtrack(path_stack, current)
         direction = random.choice(choices)
-        print({direction})
         current.open_wall(direction)
         path_stack.append(current)
         move = current.get_move_coords(direction)
@@ -140,13 +138,21 @@ class MazeGenerator:
         lines = []
         for row in self.maze:
             lines.append("".join([c.get_hexa() for c in row]) + "\n")
-        lines += ["",
-                  f"{self.entry[0]},{self.entry[1]}",
-                  f"{self.exit[0]},{self.exit[1]}"]
+        lines.extend(["\n",
+                     f"{self.entry[0]},{self.entry[1]}\n",
+                      f"{self.exit[0]},{self.exit[1]}\n"])
         with open(self.output_file, "w") as output:
             output.writelines(lines)
 
     def print_maze(self) -> None:
+        MAZE_COLORS = [
+            ("\033[96m██\033[0m", "\033[95m░░\033[0m"),
+            ("\033[92m██\033[0m", "\033[32m▒▒\033[0m"),
+            ("\033[93m██\033[0m", "\033[91m██\033[0m"),
+            ("\033[34m██\033[0m", "\033[97m░░\033[0m")
+        ]
+        chosen_palette = MAZE_COLORS[0]
+        # chosen_palette = random.choice(MAZE_COLORS)
         r = [1] * (self.width * 2 + 1)
         printable = [r]
         for row in self.maze:
@@ -163,7 +169,7 @@ class MazeGenerator:
         for row in printable:
             for c in row:
                 if c:
-                    print("\033[37m██\033[0m", end="")
+                    print(f"{chosen_palette[0]}", end="")
                 else:
-                    print("  ", end="")
+                    print(f"{chosen_palette[1]}", end="")
             print()
