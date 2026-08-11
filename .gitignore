@@ -1,6 +1,38 @@
-/.mypy_cache
-/maze_env
-amazeing_env
-mlx_CLX
-__pycache__
-/src/__pycache__
+# =========================
+# Environnement Virtuel
+# =========================
+maze_env/
+venv/
+env/
+
+# =========================
+# Fichiers de cache Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# Linters et Tests
+# =========================
+.mypy_cache/
+.pytest_cache/
+
+# =========================
+# Fichiers système macOS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =========================
+# Éditeurs et IDEs
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Fichiers générés par le projet
+# =========================
+maze.txt
