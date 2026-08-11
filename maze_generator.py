@@ -24,7 +24,7 @@ class Cell:
         bin_str = "".join([str(x) for x in self.walls.values()])
         return format(int(bin_str, 2), "x")
 
-    def open_walls(self, direction: str | list[str]) -> None:
+    def open_wall(self, direction: str | list[str]) -> None:
         if isinstance(direction, str):
             self.walls[direction] = 0
         else:
@@ -170,8 +170,7 @@ class MazeGenerator:
         self.make_42_cells()
         self.enter_maze()
         if not self.perfect:
-            random.seed(self.seed + 157)
-            self.imperfect_superposition()
+            self.imperfect_maze()
         self.write_output()
 
     def write_output(self) -> None:

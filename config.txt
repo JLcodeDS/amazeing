@@ -4,5 +4,5 @@ ENTRY=1,1
 EXIT=2,1
 OUTPUT_FILE=maze.txt
 # comment
-PERFECT=True
+PERFECT=False
 SEED=2082026
