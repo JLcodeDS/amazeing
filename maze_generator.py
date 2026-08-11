@@ -22,7 +22,7 @@ class Cell:
 
     def get_hexa(self) -> str:
         bin_str = "".join([str(x) for x in self.walls.values()])
-        return format(int(bin_str), "x")
+        return format(int(bin_str, 2), "x")
 
     def open_wall(self, direction: str) -> None:
         self.walls[direction] = 0
@@ -92,50 +92,49 @@ class MazeGenerator:
         current_cell = self.get_cell((self.entry[1], self.entry[0]))
         current_cell.visited = True
         path_stack = [current_cell]
-        self.perfect_backtrack(path_stack, current_cell)
+        self.perfect_backtrack(path_stack)
 
-    def perfect_backtrack(self, path_stack: list[Cell], current: Cell) -> None:
-        if not len(path_stack):
-            return
-        choices = self.find_viable_choices(current)
-        if not len(choices):
-            current = path_stack.pop()
-            return self.perfect_backtrack(path_stack, current)
-        direction = random.choice(choices)
-        current.open_wall(direction)
-        path_stack.append(current)
-        move = current.get_move_coords(direction)
-        current = self.get_cell(move)
-        current.open_wall(self.wall_entry[direction])
-        current.visited = True
-        self.perfect_backtrack(path_stack, current)
+    def perfect_backtrack(self, path_stack: list[Cell]) -> None:
+        while len(path_stack) > 0:
+            current = path_stack[-1]
+            choices = self.find_viable_choices(current)
+            if not len(choices):
+                path_stack.pop()
+            else:
+                direction = random.choice(choices)
+                current.open_wall(direction)
+                move = current.get_move_coords(direction)
+                next_cell = self.get_cell(move)
+                next_cell.open_wall(self.wall_entry[direction])
+                next_cell.visited = True
+                path_stack.append(next_cell)
 
-    def imperfect_wallbreak(self):
-        max_width = self.width - 1
-        max_height = self.height - 1
-        min_height = 0
-        min_width = 0
-        for i in range(0, max_height // 2):
-            for y in range(min_height, max_height):
-                if isinstance(self.maze[y][min_width], Cell42) or (
-                    isinstance(self.maze[y][max_width], Cell42)
-                ):
-                    continue
-                if y != self.maze_edges["S"]:
-                    self.maze[y][min_width].open_wall("S")
-                    self.maze[y][max_width].open_wall("S")
-            min_width += 2
-            max_width -= 2
-        for j in range(0, max_height // 2):
-            for x in range(min_width, max_width):
-                if isinstance(self.maze[min_height][x], Cell42) or (
-                   isinstance(self.maze[max_height][x], Cell42)):
-                    continue
-                if x != self.maze_edges["E"]:
-                    self.maze[min_height][x].open_wall("E")
-                    self.maze[max_height][x].open_wall("E")
-            min_height += 2
-            max_height -= 2
+    def imperfect_maze(self) -> None:
+        for y in range(self.height):
+            for x in range(self.width):
+                current = self.get_cell((y, x))
+                closed_walls = current.get_closed_walls()
+                if len(closed_walls) == 3 and not isinstance(current, Cell42):
+                    can_break = []
+                    for wall in closed_walls:
+                        if (wall in ["N", "S"]) and (
+                                current.height == self.maze_edges[wall]):
+                            continue
+                        if (wall in ["E", "W"]) and (
+                                current.width == self.maze_edges[wall]):
+                            continue
+                        move = current.get_move_coords(wall)
+                        next_cell = self.get_cell(move)
+                        if isinstance(next_cell, Cell42):
+                            continue
+                        can_break.append(wall)
+                    if can_break:
+                        to_break = random.choice(can_break)
+                        current.open_wall(to_break)
+                        move = current.get_move_coords(to_break)
+                        next_cell = self.get_cell(move)
+                        opposite_wall = self.wall_entry[to_break]
+                        next_cell.open_wall(opposite_wall)
 
     def find_viable_choices(self, current: Cell) -> list[str]:
         choices = current.get_closed_walls()
