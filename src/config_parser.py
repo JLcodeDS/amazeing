@@ -29,8 +29,12 @@ class ConfigParser:
                 if line[0] != "#":
                     keyval = line.split("=")
                     try:
-                        self._config_dict[keyval[0]] = self.config_type[
-                            keyval[0]](keyval[1].replace("\n", ""))
+                        if keyval[0] != "PERFECT":
+                            self._config_dict[keyval[0]] = self.config_type[
+                                keyval[0]](keyval[1].replace("\n", ""))
+                        else:
+                            perfect = True if keyval[1] == "True" else False
+                            self._config_dict[keyval[0]] = perfect
                     except Exception:
                         value_cln = keyval[1].replace('\n', '')
                         raise Exception(

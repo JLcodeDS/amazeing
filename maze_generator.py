@@ -22,10 +22,17 @@ class Cell:
 
     def get_hexa(self) -> str:
         bin_str = "".join([str(x) for x in self.walls.values()])
-        return format(int(bin_str), "x")
+        return format(int(bin_str, 2), "x")
 
-    def open_wall(self, direction: str) -> None:
-        self.walls[direction] = 0
+    def open_walls(self, direction: str | list[str]) -> None:
+        if isinstance(direction, str):
+            self.walls[direction] = 0
+        else:
+            for dir in direction:
+                self.walls[dir] = 0
+
+    def get_open_walls(self) -> list[str]:
+        return [wall for wall in self.walls.keys() if not self.walls[wall]]
 
     def get_closed_walls(self) -> list[str]:
         return [wall for wall in self.walls.keys() if self.walls[wall]]
@@ -41,7 +48,7 @@ class Cell42(Cell):
 
 
 class MazeGenerator:
-    def __init__(self, seed: str, entry: tuple, exit: tuple,
+    def __init__(self, seed: int, entry: tuple, exit: tuple,
                  perfect: bool, width: int, height: int, output_file: str):
         self.seed = seed
         self.entry = entry
@@ -63,11 +70,14 @@ class MazeGenerator:
             "N": 0
         }
 
-    def initialize_maze(self):
-        self.maze = [
+        self.maze = self.initialize_maze()
+
+    def initialize_maze(self) -> list[list[Cell]]:
+        maze = [
             [Cell(h, w) for w in range(self.width)
              ] for h in range(self.height)
             ]
+        return maze
 
     def make_42_cells(self):
         h_42 = 5
@@ -83,7 +93,8 @@ class MazeGenerator:
             wh_42 = ((self.width - w_42) // 2,
                      (self.height - h_42) // 2)
             for w, h in coords_42:
-                self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42(h, w)
+                self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42(
+                    wh_42[1] + h, wh_42[0] + w)
 
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         return self.maze[coords[0]][coords[1]]
@@ -94,7 +105,8 @@ class MazeGenerator:
         path_stack = [current_cell]
         self.perfect_backtrack(path_stack, current_cell)
 
-    def perfect_backtrack(self, path_stack: list[Cell], current: Cell) -> None:
+    def perfect_backtrack(self, path_stack: list[Cell],
+                          current: Cell) -> None:
         if not len(path_stack):
             return
         choices = self.find_viable_choices(current)
@@ -102,40 +114,47 @@ class MazeGenerator:
             current = path_stack.pop()
             return self.perfect_backtrack(path_stack, current)
         direction = random.choice(choices)
-        current.open_wall(direction)
+        current.open_walls(direction)
         path_stack.append(current)
         move = current.get_move_coords(direction)
         current = self.get_cell(move)
-        current.open_wall(self.wall_entry[direction])
+        current.open_walls(self.wall_entry[direction])
         current.visited = True
         self.perfect_backtrack(path_stack, current)
+
+    def imperfect_superposition(self):
+        maze_a = self.maze.copy()
+        self.print_maze()
+        self.maze = self.initialize_maze()
+        self.make_42_cells()
+        self.enter_maze()
+        self.print_maze()
+        for r in maze_a:
+            for c in r:
+                current = self.get_cell(c.coords)
+                current.open_walls(c.get_open_walls())
+        self.imperfect_wallbreak()
 
     def imperfect_wallbreak(self):
         max_width = self.width - 1
         max_height = self.height - 1
         min_height = 0
         min_width = 0
-        for i in range(0, max_height // 2):
-            for y in range(min_height, max_height):
-                if isinstance(self.maze[y][min_width], Cell42) or (
-                    isinstance(self.maze[y][max_width], Cell42)
-                ):
-                    continue
-                if y != self.maze_edges["S"]:
-                    self.maze[y][min_width].open_wall("S")
-                    self.maze[y][max_width].open_wall("S")
-            min_width += 2
-            max_width -= 2
-        for j in range(0, max_height // 2):
-            for x in range(min_width, max_width):
-                if isinstance(self.maze[min_height][x], Cell42) or (
-                   isinstance(self.maze[max_height][x], Cell42)):
-                    continue
-                if x != self.maze_edges["E"]:
-                    self.maze[min_height][x].open_wall("E")
-                    self.maze[max_height][x].open_wall("E")
-            min_height += 2
-            max_height -= 2
+        for y in range(min_height, max_height):
+            if isinstance(self.maze[y][min_width], Cell42) or (
+                isinstance(self.maze[y][max_width], Cell42)
+            ):
+                continue
+            if y != self.maze_edges["S"]:
+                self.maze[y][min_width].open_walls("S")
+                self.maze[y][max_width].open_walls("S")
+        for x in range(min_width, max_width):
+            if isinstance(self.maze[min_height][x], Cell42) or (
+               isinstance(self.maze[max_height][x], Cell42)):
+                continue
+            if x != self.maze_edges["E"]:
+                self.maze[min_height][x].open_walls("E")
+                self.maze[max_height][x].open_walls("E")
 
     def find_viable_choices(self, current: Cell) -> list[str]:
         choices = current.get_closed_walls()
@@ -159,6 +178,9 @@ class MazeGenerator:
         self.initialize_maze()
         self.make_42_cells()
         self.enter_maze()
+        if not self.perfect:
+            random.seed(self.seed + 157)
+            self.imperfect_superposition()
         self.write_output()
 
     def write_output(self) -> None:
@@ -193,10 +215,9 @@ class MazeGenerator:
                 r_below.append(1)
             printable.append(r_path)
             printable.append(r_below)
-
-        for row in printable:
-            for c in row:
-                if c:
+        for print_row in printable:
+            for cell in print_row:
+                if cell:
                     print(f"{chosen_palette[0]}", end="")
                 else:
                     print("  ", end="")
