@@ -24,8 +24,15 @@ class Cell:
         bin_str = "".join([str(x) for x in self.walls.values()])
         return format(int(bin_str, 2), "x")
 
-    def open_wall(self, direction: str) -> None:
-        self.walls[direction] = 0
+    def open_walls(self, direction: str | list[str]) -> None:
+        if isinstance(direction, str):
+            self.walls[direction] = 0
+        else:
+            for dir in direction:
+                self.walls[dir] = 0
+
+    def get_open_walls(self) -> list[str]:
+        return [wall for wall in self.walls.keys() if not self.walls[wall]]
 
     def get_closed_walls(self) -> list[str]:
         return [wall for wall in self.walls.keys() if self.walls[wall]]
@@ -41,7 +48,7 @@ class Cell42(Cell):
 
 
 class MazeGenerator:
-    def __init__(self, seed: str, entry: tuple, exit: tuple,
+    def __init__(self, seed: int, entry: tuple, exit: tuple,
                  perfect: bool, width: int, height: int, output_file: str):
         self.seed = seed
         self.entry = entry
@@ -63,11 +70,14 @@ class MazeGenerator:
             "N": 0
         }
 
-    def initialize_maze(self):
-        self.maze = [
+        self.maze = self.initialize_maze()
+
+    def initialize_maze(self) -> list[list[Cell]]:
+        maze = [
             [Cell(h, w) for w in range(self.width)
              ] for h in range(self.height)
             ]
+        return maze
 
     def make_42_cells(self):
         h_42 = 5
@@ -83,7 +93,8 @@ class MazeGenerator:
             wh_42 = ((self.width - w_42) // 2,
                      (self.height - h_42) // 2)
             for w, h in coords_42:
-                self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42(h, w)
+                self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42(
+                    wh_42[1] + h, wh_42[0] + w)
 
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         return self.maze[coords[0]][coords[1]]
@@ -158,6 +169,9 @@ class MazeGenerator:
         self.initialize_maze()
         self.make_42_cells()
         self.enter_maze()
+        if not self.perfect:
+            random.seed(self.seed + 157)
+            self.imperfect_superposition()
         self.write_output()
 
     def write_output(self) -> None:
@@ -192,10 +206,9 @@ class MazeGenerator:
                 r_below.append(1)
             printable.append(r_path)
             printable.append(r_below)
-
-        for row in printable:
-            for c in row:
-                if c:
+        for print_row in printable:
+            for cell in print_row:
+                if cell:
                     print(f"{chosen_palette[0]}", end="")
                 else:
                     print("  ", end="")

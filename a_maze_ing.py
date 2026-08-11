@@ -15,14 +15,13 @@ def main():
     conf_dict = {k.lower(): v for (k, v) in conf_dict.items()}
     mazeGen = MazeGenerator(**conf_dict)
     mazeGen.generate_maze()
-    mazeGen.imperfect_wallbreak()
     mazeGen.print_maze()
     mazeGen.write_output()
 
 
 if __name__ == "__main__":
-    #try:
+    # try:
     #    main()
-    #except Exception as e:
+    # except Exception as e:
     #    print(e)
     main()
