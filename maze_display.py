@@ -183,8 +183,8 @@ class MazeDisplay:
     def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         path_color = palette["path"]
-        corner_radius = 6
-        margin = 7
+        corner_radius = 4
+        margin = 6
         inner_size = self.tile_size - (margin * 2)
         for y, x in path_coords:
             px = (x * self.tile_size) + self.offset
@@ -208,9 +208,9 @@ class MazeDisplay:
         elif keycode == 50:
             self.show_path = not self.show_path
             self.draw_maze()
-            # if self.show_path:
-            #     coords =
-            #     self.animate_path(coords)
+            if self.show_path:
+                coords = self.maze_gen.shortest_path[1:-1]
+                self.animate_path(coords)
 
         elif keycode == 51:
             self.color_palette_index += 1
