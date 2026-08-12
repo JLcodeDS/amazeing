@@ -1,3 +1,4 @@
+import time
 from mlx import Mlx
 from typing import Any
 from maze_generator import Cell, Cell42
@@ -6,10 +7,15 @@ from maze_generator import Cell, Cell42
 class MazeDisplay:
     def __init__(self, maze_gen: Any) -> None:
         self.maze_gen = maze_gen
-        self.tile_size = 20
+        self.tile_size = 30
+        self.ui_height = 40
+        self.offset = 15
 
-        self.win_width = self.maze_gen.width * self.tile_size
-        self.win_height = self.maze_gen.height * self.tile_size
+        self.win_width = (
+            self.maze_gen.width * self.tile_size + (self.offset * 2))
+        self.win_height = (
+            (self.maze_gen.height * self.tile_size) + self.ui_height + (
+                self.offset * 2))
 
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
@@ -18,18 +24,35 @@ class MazeDisplay:
 
         self.show_path = False
         self.color_palette_index = 0
+        self.palettes = [
+            {   # 0: Orange / Brown
+                "wall": 0xFFDFA03E, "bg": 0xFF1D110B, "path": 0xFF032E8D,
+                "entry": 0xFFFF0000, "exit": 0xFF00FF84, "42": 0xFFEADBC3
+            },
+            {   # 1: Neon Green
+                "wall": 0xFF00B53A, "bg": 0xFF050510, "path": 0xFFD583C2,
+                "entry": 0xFF55FF55, "exit": 0xFFFF3333, "42": 0xFF2A7C3D
+            },
+            {   # 2: Cyan / Pink
+                "wall": 0xFFFF00E6, "bg": 0xFF140026, "path": 0xFF2BFF00,
+                "entry": 0xFF00FFFF, "exit": 0xFFE6FF00, "42": 0xFFD400FF
+            },
+            {   # 3: Blue / White
+                "wall": 0xFF72D1FC, "bg": 0xFF052333, "path": 0xFFF04B00,
+                "entry": 0xFFFFFFFF, "exit": 0xFF84FF00, "42": 0xFF0FB4FF
+            }
+        ]
 
     def get_cell_color(self, cell: Cell) -> int:
+        palette = self.palettes[self.color_palette_index % len(self.palettes)]
         entry_yx = (self.maze_gen.entry[1], self.maze_gen.entry[0])
         exit_yx = (self.maze_gen.exit[1], self.maze_gen.exit[0])
         if cell.coords == entry_yx:
-            return 0xFFFF0000
+            return palette["entry"]
         elif cell.coords == exit_yx:
-            return 0xFF00FF84
+            return palette["exit"]
         elif isinstance(cell, Cell42):
-            return 0xFFFCD172
-        else:
-            return 0xFF332305
+            return palette["42"]
 
     def draw_rectangle(
         self, start_x: int, start_y: int, width: int, height: int, color: int
@@ -38,36 +61,143 @@ class MazeDisplay:
             for x in range(start_x, start_x + width):
                 self.mlx.mlx_pixel_put(self.mlx_ptr, self.win_ptr, x, y, color)
 
+    def draw_rounded_square(
+        self, start_x: int, start_y: int, size: int, radius: int, color: int
+    ) -> None:
+        for y in range(size):
+            for x in range(size):
+                dx = max(0, radius - x, x - (size - radius - 1))
+                dy = max(0, radius - y, y - (size - radius - 1))
+                if dx * dx + dy * dy <= radius * radius:
+                    self.mlx.mlx_pixel_put(
+                        self.mlx_ptr, self.win_ptr, start_x + x, start_y + y,
+                        color)
+
+    def draw_circle(
+        self, center_x: int, center_y: int, thickness: int, color: int
+    ) -> None:
+        radius_float = thickness / 2.0
+        half_t = thickness // 2
+        for y in range(center_y - half_t, center_y + half_t + 1):
+            for x in range(center_x - half_t, center_x + half_t + 1):
+                dx = x - center_x
+                dy = y - center_y
+                if (dx * dx) + (dy * dy) <= (radius_float * radius_float):
+                    self.mlx.mlx_pixel_put(
+                        self.mlx_ptr, self.win_ptr, x, y, color)
+
     def draw_maze(self) -> None:
         self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
 
-        wall_color = 0xFFFFB40F
-        wall_thickness = 2
+        palette = self.palettes[self.color_palette_index % len(self.palettes)]
+        wall_color = palette["wall"]
+        wall_thickness = 5
         for y in range(self.maze_gen.height):
             for x in range(self.maze_gen.width):
                 cell = self.maze_gen.get_cell((y, x))
-                px = x * self.tile_size
-                py = y * self.tile_size
-                bg_color = self.get_cell_color(cell)
+                px = (x * self.tile_size) + self.offset
+                py = (y * self.tile_size) + self.offset
+                special_color = self.get_cell_color(cell)
+
+                margin = 5
+                inner_size = self.tile_size - (margin * 2)
+                corner_radius = 2
 
                 self.draw_rectangle(
-                    px, py, self.tile_size, self.tile_size, bg_color)
-
+                    px, py, self.tile_size, self.tile_size, palette["bg"])
+                if special_color in (palette["entry"], palette["exit"]):
+                    self.draw_rounded_square(
+                        px + margin,
+                        py + margin,
+                        inner_size,
+                        corner_radius,
+                        special_color
+                    )
+                elif special_color == palette["42"]:
+                    self.draw_rounded_square(
+                        px + 3,
+                        py + 3,
+                        self.tile_size - 6,
+                        corner_radius,
+                        special_color
+                    )
+        segments = set()
+        for y in range(self.maze_gen.height):
+            for x in range(self.maze_gen.width):
+                cell = self.maze_gen.get_cell((y, x))
                 if cell.walls["N"] == 1:
-                    self.draw_rectangle(
-                        px, py, self.tile_size, wall_thickness, wall_color)
+                    segments.add(((x, y), (x + 1, y)))
                 if cell.walls["W"] == 1:
-                    self.draw_rectangle(
-                        px, py, wall_thickness, self.tile_size, wall_color)
+                    segments.add(((x, y), (x, y + 1)))
                 if cell.walls["S"] == 1:
-                    self.draw_rectangle(
-                        px, py + self.tile_size - wall_thickness,
-                        self.tile_size, wall_thickness, wall_color)
+                    segments.add(((x, y + 1), (x + 1, y + 1)))
                 if cell.walls["E"] == 1:
-                    self.draw_rectangle(
-                        px + self.tile_size - wall_thickness, py,
-                        wall_thickness, self.tile_size, wall_color)
+                    segments.add(((x + 1, y), (x + 1, y + 1)))
+
+        vertex_degrees = {}
+        for v1, v2 in segments:
+            vertex_degrees[v1] = vertex_degrees.get(v1, 0) + 1
+            vertex_degrees[v2] = vertex_degrees.get(v2, 0) + 1
+        half_t = wall_thickness // 2
+        for v1, v2 in segments:
+            px1 = (v1[0] * self.tile_size) + self.offset
+            py1 = (v1[1] * self.tile_size) + self.offset
+            px2 = (v2[0] * self.tile_size) + self.offset
+            py2 = (v2[1] * self.tile_size) + self.offset
+            if py1 == py2:
+                start_x = min(px1, px2)
+                length = abs(px1 - px2) + 1
+                self.draw_rectangle(
+                    start_x, py1 - half_t, length, wall_thickness, wall_color)
+            else:
+                start_y = min(py1, py2)
+                length = abs(py1 - py2) + 1
+                self.draw_rectangle(
+                    px1 - half_t, start_y, wall_thickness, length, wall_color)
+        for vertex in vertex_degrees.keys():
+            px = (vertex[0] * self.tile_size) + self.offset
+            py = (vertex[1] * self.tile_size) + self.offset
+            self.draw_circle(px, py, wall_thickness, wall_color)
+        self.draw_ui()
         self.mlx.mlx_do_sync(self.mlx_ptr)
+
+    def draw_ui(self) -> None:
+        text_y = (
+            self.maze_gen.height * self.tile_size) + self.offset + (
+                self.ui_height // 2)
+        text_x = self.offset
+
+        text_color = 0xFFFFFFFF
+
+        menu_text = "1: regen   2: path    3: color    4/esc: quit"
+
+        self.mlx.mlx_string_put(
+            self.mlx_ptr,
+            self.win_ptr,
+            text_x,
+            text_y,
+            text_color,
+            menu_text
+        )
+
+    def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
+        palette = self.palettes[self.color_palette_index % len(self.palettes)]
+        path_color = palette["path"]
+        corner_radius = 6
+        margin = 7
+        inner_size = self.tile_size - (margin * 2)
+        for y, x in path_coords:
+            px = (x * self.tile_size) + self.offset
+            py = (y * self.tile_size) + self.offset
+            self.draw_rounded_square(
+                        px + margin,
+                        py + margin,
+                        inner_size,
+                        corner_radius,
+                        path_color
+                    )
+            self.mlx.mlx_do_sync(self.mlx_ptr)
+            time.sleep(0.05)
 
     def handle_input(self, keycode: int, param: Any = None) -> None:
         print(f"Touche détectée : {keycode}")
@@ -78,16 +208,19 @@ class MazeDisplay:
         elif keycode == 50:
             self.show_path = not self.show_path
             self.draw_maze()
+            # if self.show_path:
+            #     coords =
+            #     self.animate_path(coords)
 
         elif keycode == 51:
             self.color_palette_index += 1
             self.draw_maze()
 
-        elif keycode == 21 or keycode == 53:
+        elif keycode == 65307 or keycode == 52:
             self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
-    def run(self):
+    def run(self) -> None:
         self.draw_maze()
         self.mlx.mlx_hook(self.win_ptr, 2, 1, self.handle_input, None)
         self.mlx.mlx_loop(self.mlx_ptr)
