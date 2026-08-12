@@ -2,7 +2,7 @@ import random
 
 
 class Cell:
-    def __init__(self, height: int, width: int):
+    def __init__(self, height: int, width: int, dest: tuple[int, int]):
         self.walls = {
             "W": 1,
             "S": 1,
@@ -19,6 +19,10 @@ class Cell:
             "E": (height, width + 1),
             "N": (height - 1, width)
         }
+        self.h_score = self.heuristic((height, width), dest)
+        self.g_score: int
+        self.f_score: int
+        self.parent: Cell | None = None
 
     def get_hexa(self) -> str:
         bin_str = "".join([str(x) for x in self.walls.values()])
@@ -40,10 +44,17 @@ class Cell:
     def get_move_coords(self, direction: str) -> tuple[int, int]:
         return self.move[direction]
 
+    def get_allowed_moves(self) -> list[tuple[int, int]]:
+        return [self.get_move_coords(dir) for dir in self.get_open_walls()]
+
+    @staticmethod
+    def heuristic(point1: tuple[int, int], point2: tuple[int, int]):
+        return abs(point1[0] - point2[0]) + abs(point1[1] - point2[1])
+
 
 class Cell42(Cell):
-    def __init__(self, height: int, width: int):
-        super().__init__(height, width)
+    def __init__(self, height: int, width: int, dest: tuple[int, int]):
+        super().__init__(height, width, dest)
         self.visited = True
 
 
@@ -73,8 +84,9 @@ class MazeGenerator:
         self.maze = self.initialize_maze()
 
     def initialize_maze(self) -> list[list[Cell]]:
+        ex = (self.exit[1], self.exit[0])
         maze = [
-            [Cell(h, w) for w in range(self.width)
+            [Cell(h, w, ex) for w in range(self.width)
              ] for h in range(self.height)
             ]
         return maze
@@ -94,7 +106,7 @@ class MazeGenerator:
                      (self.height - h_42) // 2)
             for w, h in coords_42:
                 self.maze[wh_42[1] + h][wh_42[0] + w] = Cell42(
-                    wh_42[1] + h, wh_42[0] + w)
+                    wh_42[1] + h, wh_42[0] + w, (self.exit[1], self.exit[0]))
 
     def get_cell(self, coords: tuple[int, int]) -> Cell:
         return self.maze[coords[0]][coords[1]]
@@ -171,6 +183,7 @@ class MazeGenerator:
         self.enter_maze()
         if not self.perfect:
             self.imperfect_maze()
+        self.a_star_search()
         self.write_output()
 
     def write_output(self) -> None:
@@ -199,7 +212,10 @@ class MazeGenerator:
             r_path = [1]
             r_below = [1]
             for c in row:
-                r_path.append(0)
+                if (c.coords in self.shortest_path):
+                    r_path.append(2)
+                else:
+                    r_path.append(0)
                 r_path.append(c.walls["E"])
                 r_below.append(c.walls["S"])
                 r_below.append(1)
@@ -207,8 +223,52 @@ class MazeGenerator:
             printable.append(r_below)
         for print_row in printable:
             for cell in print_row:
-                if cell:
+                if cell == 1:
                     print(f"{chosen_palette[0]}", end="")
+                elif cell == 2:
+                    print(f"{chosen_palette[1]}", end="")
                 else:
                     print("  ", end="")
             print()
+
+    def a_star_search(self):
+        entry = (self.entry[1], self.entry[0])
+        goal = (self.exit[1], self.exit[0])
+        current = self.get_cell(entry)
+        current.g_score = 0
+        current.f_score = current.h_score
+        closed_cells = set()
+        open_cells = [current]
+        while len(open_cells):
+            current = self.get_best_move(open_cells)
+            if current.coords == goal:
+                break
+
+            open_cells.remove(current)
+            closed_cells.add(current)
+            neighbours = [
+                self.get_cell(x) for x in current.get_allowed_moves()]
+            for cell in neighbours:
+                if cell.coords in [x.coords for x in closed_cells]:
+                    continue
+                new_g = current.g_score + 1
+
+                if cell.coords not in [x.coords for x in open_cells]:
+                    open_cells.append(cell)
+                elif new_g >= cell.g_score:
+                    continue
+
+                cell.g_score = new_g
+                cell.f_score = cell.g_score + cell.h_score
+                cell.parent = current
+
+        shortest_path = [current.coords]
+        while current.coords != entry:
+            current = current.parent
+            shortest_path.append(current.coords)
+        shortest_path = shortest_path[::-1]
+        self.shortest_path = shortest_path
+
+    def get_best_move(self, allowed: list[Cell]):
+        min_f = min(allowed, key=lambda x: (x.f_score, x.h_score))
+        return min_f
