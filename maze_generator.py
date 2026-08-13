@@ -206,7 +206,7 @@ class MazeGenerator:
                 (cell[0] - prev[0], cell[1] - prev[1])
             ]
             prev = cell
-        lines.append(short_path)
+        lines.append(short_path + "\n")
         with open(self.output_file, "w") as output:
             output.writelines(lines)
 
