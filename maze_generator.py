@@ -187,12 +187,26 @@ class MazeGenerator:
         self.write_output()
 
     def write_output(self) -> None:
+        dir_map = {
+            (0, -1): 'W',
+            (-1, 0): 'S',
+            (1, 0): 'N',
+            (0, 1): 'E'
+        }
         lines = []
         for row in self.maze:
             lines.append("".join([c.get_hexa() for c in row]) + "\n")
         lines.extend(["\n",
                      f"{self.entry[0]},{self.entry[1]}\n",
                       f"{self.exit[0]},{self.exit[1]}\n"])
+        short_path = ""
+        prev = self.shortest_path[0]
+        for cell in self.shortest_path[1:]:
+            short_path += dir_map[
+                (cell[0] - prev[0], cell[1] - prev[1])
+            ]
+            prev = cell
+        lines.append(short_path)
         with open(self.output_file, "w") as output:
             output.writelines(lines)
 
