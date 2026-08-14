@@ -21,6 +21,18 @@ class ConfigParser:
             "PERFECT": bool,
             "SEED": int
         }
+        self.allowed_types: dict[str, str] = {
+            "WIDTH": "int",
+            "HEIGHT": "int",
+            "ENTRY": "tuple[int, int]",
+            "EXIT": "tuple[int, int]",
+            "OUTPUT_FILE": "str",
+            "PERFECT": "bool",
+            "SEED": "int"
+        }
+        self.allowed_types_str = ", ".join(
+            f"{k}: {v}" for k, v in self.allowed_types.items())
+
         self.filename = filename
 
     def read_config(self) -> None:
@@ -33,15 +45,20 @@ class ConfigParser:
                             self._config_dict[keyval[0]] = self.config_type[
                                 keyval[0]](keyval[1].replace("\n", ""))
                         else:
+                            keyval[1] = keyval[1].replace("\n", "")
+                            if keyval[1] not in ["True", "False"]:
+                                raise Exception(
+                                    f"Invalid value for PERFECT: '{keyval[1]}'"
+                                    )
                             perfect = True if keyval[1] == "True" else False
                             self._config_dict[keyval[0]] = perfect
                     except Exception:
                         value_cln = keyval[1].replace('\n', '')
                         raise Exception(
                             "Key Value pair " +
-                            f"'{keyval[0]} : {value_cln}'" +
-                            "is not allowed.\nAllowed keys are: "
-                            f"{list(self.config_type.keys())}"
+                            f"'{keyval[0]} : {value_cln}' " +
+                            "is not allowed.\nAllowed keys and types are: " +
+                            self.allowed_types_str
                             )
 
     def validate_dims(self) -> None:
@@ -50,6 +67,8 @@ class ConfigParser:
         h = conf["HEIGHT"]
         en_dim = conf["ENTRY"]
         ex_dim = conf["EXIT"]
+        if en_dim == ex_dim:
+            raise Exception("Entry and Exit must be different.")
         if (w < 3 and h < 3) or (h < 3 or w < 3):
             raise Exception("Invalid dimensions for WIDTH or HEIGHT.")
         if (en_dim[0] < 0 or en_dim[0] > w) or (

@@ -180,6 +180,18 @@ class MazeGenerator:
         random.seed(self.seed)
         self.initialize_maze()
         self.make_42_cells()
+        entry = (self.entry[1], self.entry[0])
+        exit = (self.exit[1], self.exit[0])
+        if isinstance(self.get_cell(entry), Cell42) or (
+            isinstance(self.get_cell(exit), Cell42)
+        ):
+            raise Exception(
+                "Error: Entry and Exit are in the 42 logo.\n" +
+                "Disallowed coords are:\n" +
+                f"{[
+                    c.coords for r in self.maze
+                    for c in r if isinstance(c, Cell42)]}"
+                )
         self.enter_maze()
         if not self.perfect:
             self.imperfect_maze()
