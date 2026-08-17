@@ -1,14 +1,16 @@
 import sys
 import ctypes
 import time
+import datetime
 from mlx import Mlx
 from typing import Any
-from maze_generator import Cell, Cell42
+from maze_generator import Cell, Cell42, MazeGenerator
 
 
 class MazeDisplay:
-    def __init__(self, maze_gen: Any) -> None:
-        self.maze_gen = maze_gen
+    def __init__(self, maze_dict: Any) -> None:
+        self.maze_dict = maze_dict
+        self.maze_gen = MazeGenerator(**maze_dict)
         self.tile_size = 30
         self.ui_height = 40
         self.offset = 15
@@ -34,17 +36,17 @@ class MazeDisplay:
         self.show_path = False
         self.color_palette_index = 0
         self.palettes = [
-            {   # 0: Orange / Brown
-                "wall": 0xFFDFA03E, "bg": 0xFF1D110B, "path": 0xFF032E8D,
-                "entry": 0xFFFF0000, "exit": 0xFF00FF84, "42": 0xFFEADBC3
+            {   # 0: Cyan / Pink
+                "wall": 0xFFFF00E6, "bg": 0xFF140026, "path": 0xFF2BFF00,
+                "entry": 0xFF00FFFF, "exit": 0xFFE6FF00, "42": 0xFFD400FF
             },
             {   # 1: Neon Green
                 "wall": 0xFF00B53A, "bg": 0xFF050510, "path": 0xFFD583C2,
                 "entry": 0xFF55FF55, "exit": 0xFFFF3333, "42": 0xFF2A7C3D
             },
-            {   # 2: Cyan / Pink
-                "wall": 0xFFFF00E6, "bg": 0xFF140026, "path": 0xFF2BFF00,
-                "entry": 0xFF00FFFF, "exit": 0xFFE6FF00, "42": 0xFFD400FF
+            {   # 2: Orange / Brown
+                "wall": 0xFFDFA03E, "bg": 0xFF1D110B, "path": 0xFF032E8D,
+                "entry": 0xFFFF0000, "exit": 0xFF00FF84, "42": 0xFFEADBC3
             },
             {   # 3: Blue / White
                 "wall": 0xFF72D1FC, "bg": 0xFF052333, "path": 0xFFF04B00,
@@ -213,6 +215,9 @@ class MazeDisplay:
     def handle_input(self, keycode: int, param: Any = None) -> None:
         print(f"Touche détectée : {keycode}")
         if keycode == 49:
+            dict_cpy = self.maze_dict.copy()
+            dict_cpy['seed'] += datetime.datetime.now().second
+            self.maze_gen = MazeGenerator(**dict_cpy)
             self.maze_gen.generate_maze()
             self.draw_maze()
 
@@ -232,6 +237,7 @@ class MazeDisplay:
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
     def run(self) -> None:
+        self.maze_gen.generate_maze()
         self.draw_maze()
         self.mlx.mlx_hook(self.win_ptr, 2, 1, self.handle_input, None)
         self.mlx.mlx_loop(self.mlx_ptr)
