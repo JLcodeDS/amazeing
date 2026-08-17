@@ -1,3 +1,5 @@
+import sys
+import ctypes
 import time
 from mlx import Mlx
 from typing import Any
@@ -17,8 +19,15 @@ class MazeDisplay:
             (self.maze_gen.height * self.tile_size) + self.ui_height + (
                 self.offset * 2))
 
+        if sys.platform == "linux":
+            ctypes.CDLL("libbsd.so.0", mode=ctypes.RTLD_GLOBAL)
+
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
+        if not self.mlx_ptr:
+            raise RuntimeError(
+                "Error: Impossible to initialize graphic display (Verify "
+                "the $DISPLAY variable or X11 connection).")
         self.win_ptr = self.mlx.mlx_new_window(
             self.mlx_ptr, self.win_width, self.win_height, "A-Maze-ing")
 
@@ -53,6 +62,8 @@ class MazeDisplay:
             return palette["exit"]
         elif isinstance(cell, Cell42):
             return palette["42"]
+        else:
+            return palette["bg"]
 
     def draw_rectangle(
         self, start_x: int, start_y: int, width: int, height: int, color: int
@@ -134,7 +145,7 @@ class MazeDisplay:
                 if cell.walls["E"] == 1:
                     segments.add(((x + 1, y), (x + 1, y + 1)))
 
-        vertex_degrees = {}
+        vertex_degrees: dict[Any, Any] = {}
         for v1, v2 in segments:
             vertex_degrees[v1] = vertex_degrees.get(v1, 0) + 1
             vertex_degrees[v2] = vertex_degrees.get(v2, 0) + 1

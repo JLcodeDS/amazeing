@@ -26,7 +26,7 @@ debug:
 	$(PYTHON) -m pdb a_maze_ing.py config.txt
 
 clean:
-	rm -rf maze_env __pycache__ .mypy_cache src/__pycache__ *.txt
+	rm -rf maze_env __pycache__ .mypy_cache src/__pycache__
 	cd mlx && make clean
 
 lint:
