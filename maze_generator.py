@@ -185,12 +185,13 @@ class MazeGenerator:
         if isinstance(self.get_cell(entry), Cell42) or (
             isinstance(self.get_cell(exit), Cell42)
         ):
+            n_coord = [
+                c.coords for r in self.maze for c in r if isinstance(c, Cell42)
+                ]
             raise Exception(
                 "Error: Entry and Exit are in the 42 logo.\n" +
                 "Disallowed coords are:\n" +
-                f"{[
-                    c.coords for r in self.maze
-                    for c in r if isinstance(c, Cell42)]}"
+                f"{n_coord}"
                 )
         self.enter_maze()
         if not self.perfect:
