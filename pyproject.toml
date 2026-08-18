@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mazegen"
+version = "1.0.0"
+description = "A custom 2D maze generator and pathfinder package"
+authors = [
+    { name = "jludolph", email = "jludolph@student.42roma.it" },
+    { name = "arivet", email = "arivet@student.42roma.it"}
+]
+readme = "README.md"
+license = { file = "LICENSE.md" }
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.setuptools]
+packages = ["mazegen"]
