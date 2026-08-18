@@ -1,14 +1,46 @@
+"""Module for managing the graphic user interface and visualization of the maze.
+
+Utilizes MiniLibX (MLX) bindings to render maze grids, wall geometry, animated paths, 
+and user interactions.
+"""
+
 import sys
 import ctypes
 import time
 import datetime
 from mlx import Mlx
 from typing import Any
-from maze_generator import Cell, Cell42, MazeGenerator
+from mazegen.maze_generator import Cell, Cell42, MazeGenerator
 
 
 class MazeDisplay:
+    """Manages window lifecycle, MLX rendering pipelines, themes, and input events.
+
+    Attributes:
+        maze_dict (dict[str, Any]): Configuration properties used for maze generation.
+        maze_gen (MazeGenerator): Core generator instance handling grid algorithms.
+        tile_size (int): Pixel dimensions for each square maze cell grid segment.
+        ui_height (int): Height of the bottom user interface banner in pixels.
+        offset (int): Outer padding surrounding the rendering region in pixels.
+        win_width (int): Total computed width of the application window.
+        win_height (int): Total computed height of the application window.
+        mlx (Mlx): MiniLibX graphical framework interface wrapper.
+        mlx_ptr (Any): Pointer handle to the initialized MiniLibX context.
+        win_ptr (Any): Pointer handle to the created display window.
+        show_path (bool): State toggle tracking solution path visibility.
+        color_palette_index (int): Active index selector for color scheme palettes.
+        palettes (list[dict[str, int]]): Pre-defined color palettes holding ARGB hex values.
+    """
+
     def __init__(self, maze_dict: Any) -> None:
+        """Initializes window dimensions, loads native C libraries, and sets up MLX graphics.
+
+        Args:
+            maze_dict (Any): Dictionary containing parameters to instantiate a `MazeGenerator`.
+
+        Raises:
+            RuntimeError: If initialization of the MLX context fails (e.g., missing X11 display).
+        """
         self.maze_dict = maze_dict
         self.maze_gen = MazeGenerator(**maze_dict)
         self.tile_size = 30
@@ -55,6 +87,14 @@ class MazeDisplay:
         ]
 
     def get_cell_color(self, cell: Cell) -> int:
+        """Determines the appropriate color integer for a given cell type or coordinate.
+
+        Args:
+            cell (Cell): Target cell to query.
+
+        Returns:
+            int: Calculated ARGB hex color code based on active palette and cell role.
+        """
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         entry_yx = (self.maze_gen.entry[1], self.maze_gen.entry[0])
         exit_yx = (self.maze_gen.exit[1], self.maze_gen.exit[0])
@@ -70,6 +110,15 @@ class MazeDisplay:
     def draw_rectangle(
         self, start_x: int, start_y: int, width: int, height: int, color: int
     ) -> None:
+        """Fills a solid axis-aligned rectangular region with a given color.
+
+        Args:
+            start_x (int): Top-left starting X pixel position.
+            start_y (int): Top-left starting Y pixel position.
+            width (int): Rectangle horizontal width in pixels.
+            height (int): Rectangle vertical height in pixels.
+            color (int): ARGB hex color code.
+        """
         for y in range(start_y, start_y + height):
             for x in range(start_x, start_x + width):
                 self.mlx.mlx_pixel_put(self.mlx_ptr, self.win_ptr, x, y, color)
@@ -77,6 +126,15 @@ class MazeDisplay:
     def draw_rounded_square(
         self, start_x: int, start_y: int, size: int, radius: int, color: int
     ) -> None:
+        """Renders a square shape with smoothed/rounded corner radiuses.
+
+        Args:
+            start_x (int): Top-left X origin pixel location.
+            start_y (int): Top-left Y origin pixel location.
+            size (int): Side length dimension of the square in pixels.
+            radius (int): Corner curve radius length in pixels.
+            color (int): ARGB hex color code.
+        """
         for y in range(size):
             for x in range(size):
                 dx = max(0, radius - x, x - (size - radius - 1))
@@ -89,6 +147,14 @@ class MazeDisplay:
     def draw_circle(
         self, center_x: int, center_y: int, thickness: int, color: int
     ) -> None:
+        """Renders a filled circular node used for seamless wall joint caps.
+
+        Args:
+            center_x (int): Center X coordinate of the circle in pixels.
+            center_y (int): Center Y coordinate of the circle in pixels.
+            thickness (int): Diameter dimension of the circle in pixels.
+            color (int): ARGB hex color code.
+        """
         radius_float = thickness / 2.0
         half_t = thickness // 2
         for y in range(center_y - half_t, center_y + half_t + 1):
@@ -100,6 +166,7 @@ class MazeDisplay:
                         self.mlx_ptr, self.win_ptr, x, y, color)
 
     def draw_maze(self) -> None:
+        """Clears the window buffer and draws the entire maze structure and UI."""
         self.mlx.mlx_clear_window(self.mlx_ptr, self.win_ptr)
 
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
@@ -175,6 +242,7 @@ class MazeDisplay:
         self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def draw_ui(self) -> None:
+        """Renders the command shortcut reference menu at the bottom of the window."""
         text_y = (
             self.maze_gen.height * self.tile_size) + self.offset + (
                 self.ui_height // 2)
@@ -194,6 +262,11 @@ class MazeDisplay:
         )
 
     def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Sequentially draws solution path markers cell-by-cell with a frame delay.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of (row, col) coordinates.
+        """
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         path_color = palette["path"]
         corner_radius = 4
@@ -213,6 +286,11 @@ class MazeDisplay:
             time.sleep(0.01)
 
     def remove_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Clears solution path markers by redrawing them using the background color.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of (row, col) coordinates.
+        """
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         path_color = palette["bg"]
         corner_radius = 4
@@ -231,6 +309,12 @@ class MazeDisplay:
             self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def handle_input(self, keycode: int, param: Any = None) -> None:
+        """Event handler processing keyboard inputs for controls (regen, path toggle, theme, exit).
+
+        Args:
+            keycode (int): Integer key code emitted by MiniLibX keyboard event.
+            param (Any, optional): Optional parameter payload passed by MLX hook.
+        """
         print(f"Touche détectée : {keycode}")
         if keycode == 49:
             dict_cpy = self.maze_dict.copy()
@@ -249,14 +333,15 @@ class MazeDisplay:
 
         elif keycode == 51:
             self.color_palette_index += 1
-            if self.show_path
-            self.draw_maze()
+            if self.show_path:
+                self.draw_maze()
 
         elif keycode == 65307 or keycode == 52:
             self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
             self.mlx.mlx_loop_exit(self.mlx_ptr)
 
     def run(self) -> None:
+        """Generates the initial maze structure, performs initial draw, and starts MLX event loop."""
         self.maze_gen.generate_maze()
         self.draw_maze()
         self.mlx.mlx_hook(self.win_ptr, 2, 1, self.handle_input, None)
