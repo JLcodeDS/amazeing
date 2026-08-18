@@ -363,7 +363,6 @@ class MazeDisplay:
             param (Any, optional): Optional parameter payload passed by
                 MLX hook.
         """
-        print(f"Touche détectée : {keycode}")
         if keycode == 49:
             dict_cpy = self.maze_dict.copy()
             dict_cpy['seed'] += datetime.datetime.now().second
