@@ -302,6 +302,31 @@ class MazeDisplay:
                     )
             self.mlx.mlx_do_sync(self.mlx_ptr)
             time.sleep(0.01)
+    
+    def non_animated_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Sequentially draws solution path markers cell-by-cell with
+        a frame delay.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of
+            (row, col) coordinates.
+        """
+        palette = self.palettes[self.color_palette_index % len(self.palettes)]
+        path_color = palette["path"]
+        corner_radius = 4
+        margin = 6
+        inner_size = self.tile_size - (margin * 2)
+        for y, x in path_coords:
+            px = (x * self.tile_size) + self.offset
+            py = (y * self.tile_size) + self.offset
+            self.draw_rounded_square(
+                        px + margin,
+                        py + margin,
+                        inner_size,
+                        corner_radius,
+                        path_color
+                    )
+        self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def remove_path(self, path_coords: list[tuple[int, int]]) -> None:
         """Clears solution path markers by redrawing them using the
@@ -326,7 +351,7 @@ class MazeDisplay:
                         corner_radius,
                         path_color
                     )
-            self.mlx.mlx_do_sync(self.mlx_ptr)
+        self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def handle_input(self, keycode: int, param: Any = None) -> None:
         """Event handler processing keyboard inputs for controls
@@ -342,6 +367,7 @@ class MazeDisplay:
         if keycode == 49:
             dict_cpy = self.maze_dict.copy()
             dict_cpy['seed'] += datetime.datetime.now().second
+            self.show_path = False
             self.maze_gen = MazeGenerator(**dict_cpy)
             self.maze_gen.generate_maze()
             self.draw_maze()
@@ -356,8 +382,10 @@ class MazeDisplay:
 
         elif keycode == 51:
             self.color_palette_index += 1
+            coords = self.maze_gen.shortest_path[1:-1]
             if self.show_path:
                 self.draw_maze()
+                self.non_animated_path(coords)
 
         elif keycode == 65307 or keycode == 52:
             self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)

@@ -45,7 +45,7 @@ mlx: mlx-download vendor-libs
 		cd mlx && export C_INCLUDE_PATH="$(LOCAL_INCLUDE)" && export LIBRARY_PATH="$(LOCAL_LIB_PATH)" && $(MAKE) BACKEND=xcb; \
 	else \
 		echo "Configuring and compiling MLX for macOS..."; \
-		cd mlx && $(MAKE); \
+		cd mlx && $(MAKE) BACKEND=appkit; \
 	fi
 	$(PIP) install mlx/mlx-*.whl --force-reinstall
 
