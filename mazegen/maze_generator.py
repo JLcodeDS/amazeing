@@ -8,16 +8,22 @@ class Cell:
     used for pathfinding algorithms (e.g., A* search).
 
     Attributes:
-        walls (dict[str, int]): Wall indicators ("N", "E", "S", "W") mapped to 1 (closed) or 0 (open).
-        visited (bool): Flag indicating if the cell has been processed during generation.
+        walls (dict[str, int]): Wall indicators ("N", "E", "S", "W")
+            mapped to 1 (closed) or 0 (open).
+        visited (bool): Flag indicating if the cell has been
+            processed during generation.
         height (int): Row position (Y coordinate) in the maze.
         width (int): Column position (X coordinate) in the maze.
-        coords (tuple[int, int]): Position in (height, width) / (row, column) format.
-        move (dict[str, tuple[int, int]]): Target coordinates for moving in each cardinal direction.
-        h_score (int): Estimated distance (Manhattan heuristic) from this cell to the destination.
+        coords (tuple[int, int]): Position in (height, width) / (row, column)
+            format.
+        move (dict[str, tuple[int, int]]): Target coordinates for moving
+            in each cardinal direction.
+        h_score (int): Estimated distance (Manhattan heuristic) from this
+            cell to the destination.
         g_score (int): Cost of the path from the entry node to this cell.
         f_score (int): Total estimated path cost (g_score + h_score).
-        parent (Cell | None): Reference to the preceding cell in the pathfinding tree.
+        parent (Cell | None): Reference to the preceding cell in the
+            pathfinding tree.
     """
 
     def __init__(self, height: int, width: int, dest: tuple[int, int]):
@@ -26,7 +32,8 @@ class Cell:
         Args:
             height (int): Row coordinate in the maze grid.
             width (int): Column coordinate in the maze grid.
-            dest (tuple[int, int]): Exit coordinates in (height, width) format.
+            dest (tuple[int, int]): Exit coordinates in (height, width)
+                format.
         """
         self.walls = {
             "W": 1,
@@ -50,10 +57,13 @@ class Cell:
         self.parent: Cell | None = None
 
     def get_hexa(self) -> str:
-        """Converts the cell's wall configurations to a single hexadecimal character.
+        """
+        Converts the cell's wall configurations to a single
+        hexadecimal character.
 
         Returns:
-            str: Single hex digit representing binary walls string "W-S-E-N".
+            str: Single hex digit representing binary walls
+                string "W-S-E-N".
         """
         bin_str = "".join([str(x) for x in self.walls.values()])
         return format(int(bin_str, 2), "x")
@@ -62,8 +72,8 @@ class Cell:
         """Removes one or more walls from the cell.
 
         Args:
-            direction (str | list[str]): A direction string ("N", "S", "E", "W")
-                or a list of direction strings.
+            direction (str | list[str]): A direction string
+                ("N", "S", "E", "W") or a list of direction strings.
         """
         if isinstance(direction, str):
             self.walls[direction] = 0
@@ -94,7 +104,8 @@ class Cell:
             direction (str): Cardinal direction ("N", "S", "E", "W").
 
         Returns:
-            tuple[int, int]: Coordinates (row, column) in the specified direction.
+            tuple[int, int]: Coordinates (row, column) in the
+                specified direction.
         """
         return self.move[direction]
 
@@ -102,7 +113,8 @@ class Cell:
         """Returns reachable neighbor cell coordinates through open walls.
 
         Returns:
-            list[tuple[int, int]]: Coordinates of all adjacent accessible cells.
+            list[tuple[int, int]]: Coordinates of all adjacent accessible
+                cells.
         """
         return [self.get_move_coords(dir) for dir in self.get_open_walls()]
 
@@ -121,7 +133,8 @@ class Cell:
 
 
 class Cell42(Cell):
-    """Specialized cell pre-marked as visited to form a centered decorative pattern."""
+    """Specialized cell pre-marked as visited to form a
+    centered decorative pattern."""
 
     def __init__(self, height: int, width: int, dest: tuple[int, int]):
         """Initializes a Cell42 instance with visited pre-set to True."""
@@ -130,7 +143,9 @@ class Cell42(Cell):
 
 
 class MazeGenerator:
-    """Handles randomized maze generation, custom structural layouts, pathfinding, and output.
+    """
+    Handles randomized maze generation, custom structural layouts,
+    pathfinding, and output.
 
     Attributes:
         seed (int): Seed value for PRNG initialization.
@@ -138,12 +153,16 @@ class MazeGenerator:
         exit (tuple): Exit coordinates formatted as (x, y).
         width (int): Total column count of the maze grid.
         height (int): Total row count of the maze grid.
-        perfect (bool): True to generate a perfect maze (single path, no loops); False for imperfect.
+        perfect (bool): True to generate a perfect maze
+            (single path, no loops); False for imperfect.
         output_file (str): Output text file destination path.
-        wall_entry (dict[str, str]): Reverse lookup mapping opposite direction walls.
-        maze_edges (dict[str, int]): Outer boundaries indexed by direction name.
+        wall_entry (dict[str, str]): Reverse lookup mapping opposite
+            direction walls.
+        maze_edges (dict[str, int]): Outer boundaries indexed by direction
+            name.
         maze (list[list[Cell]]): 2D grid matrix holding `Cell` objects.
-        shortest_path (list[tuple[int, int]]): Solved path coordinates from entry to exit.
+        shortest_path (list[tuple[int, int]]): Solved path coordinates from
+            entry to exit.
     """
 
     def __init__(self, seed: int, entry: tuple, exit: tuple,
@@ -187,7 +206,8 @@ class MazeGenerator:
     def make_42_cells(self):
         """Embeds a custom '42' cell pattern at the center of the maze grid.
 
-        Prints a warning if the current grid dimensions are too small to house the logo.
+        Prints a warning if the current grid dimensions are too small to
+        house the logo.
         """
         h_42 = 5
         w_42 = 7
@@ -206,10 +226,12 @@ class MazeGenerator:
                     wh_42[1] + h, wh_42[0] + w, (self.exit[1], self.exit[0]))
 
     def get_cell(self, coords: tuple[int, int]) -> Cell:
-        """Retrieves a cell instance from the grid matching specified coordinates.
+        """Retrieves a cell instance from the grid matching specified
+        coordinates.
 
         Args:
-            coords (tuple[int, int]): Grid coordinate specified as (row, column).
+            coords (tuple[int, int]): Grid coordinate specified as
+            (row, column).
 
         Returns:
             Cell: The target `Cell` instance.
@@ -217,14 +239,16 @@ class MazeGenerator:
         return self.maze[coords[0]][coords[1]]
 
     def enter_maze(self) -> None:
-        """Starts the initial cell traversal starting from the maze entry point."""
+        """Starts the initial cell traversal starting from the maze
+        entry point."""
         current_cell = self.get_cell((self.entry[1], self.entry[0]))
         current_cell.visited = True
         path_stack = [current_cell]
         self.perfect_backtrack(path_stack)
 
     def perfect_backtrack(self, path_stack: list[Cell]) -> None:
-        """Generates a perfect maze structure using randomized depth-first search.
+        """Generates a perfect maze structure using randomized depth-first
+        search.
 
         Args:
             path_stack (list[Cell]): Stack containing active cell path steps.
@@ -244,7 +268,8 @@ class MazeGenerator:
                 path_stack.append(next_cell)
 
     def imperfect_maze(self) -> None:
-        """Removes extra walls across dead-ends to create secondary routes and loops."""
+        """Removes extra walls across dead-ends to create secondary
+        routes and loops."""
         for y in range(self.height):
             for x in range(self.width):
                 current = self.get_cell((y, x))
@@ -297,11 +322,12 @@ class MazeGenerator:
         return viable_choices
 
     def generate_maze(self) -> None:
-        """Orchestrates full maze execution flow: seeds the random mod, creates geometry, 
-        solves via A*, and outputs results.
+        """Orchestrates full maze execution flow: seeds the random mod,
+        creates geometry, solves via A*, and outputs results.
 
         Raises:
-            Exception: If entry or exit coordinates overlap with the '42' pattern region.
+            Exception: If entry or exit coordinates overlap with the
+            '42' pattern region.
         """
         random.seed(self.seed)
         self.initialize_maze()
@@ -326,7 +352,8 @@ class MazeGenerator:
         self.write_output()
 
     def write_output(self) -> None:
-        """Writes encoded hex maze structure, metadata, and solution directions to file."""
+        """Writes encoded hex maze structure, metadata, and solution
+        directions to file."""
         dir_map = {
             (0, -1): 'W',
             (1, 0): 'S',
@@ -353,7 +380,7 @@ class MazeGenerator:
     def a_star_search(self):
         """Solves the maze using the A* search pathfinding algorithm.
 
-        Computes the shortest path from entry to exit and stores the list 
+        Computes the shortest path from entry to exit and stores the list
         of coordinates in `self.shortest_path`.
         """
         entry = (self.entry[1], self.entry[0])
@@ -390,7 +417,8 @@ class MazeGenerator:
         self.shortest_path = shortest_path
 
     def get_best_move(self, allowed: list[Cell]):
-        """Selects the candidate cell with the lowest estimated total cost (f_score).
+        """Selects the candidate cell with the lowest estimated
+        total cost (f_score).
 
         Args:
             allowed (list[Cell]): Candidate cells currently in the open set.

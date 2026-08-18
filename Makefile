@@ -1,7 +1,7 @@
 PYTHON = maze_env/bin/python3
 PIP = maze_env/bin/pip
-FLAKE8 = maze_env/bin/flake8
-MYPY = maze_env/bin/mypy
+FLAKE8 = flake8
+MYPY = mypy
 
 # Chemins pour le vendoring des librairies locales
 LOCAL_LIBS_DIR = $(CURDIR)/libs
@@ -64,7 +64,7 @@ debug:
 	fi
 
 clean:
-	rm -rf maze_env __pycache__ .mypy_cache src/__pycache__ $(LOCAL_LIBS_DIR)
+	rm -rf mazegen/__pycache__ maze_env __pycache__ .mypy_cache src/__pycache__ $(LOCAL_LIBS_DIR) 
 	@if [ -d "mlx" ]; then cd mlx && $(MAKE) clean; fi
 
 fclean: clean

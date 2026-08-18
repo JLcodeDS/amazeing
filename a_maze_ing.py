@@ -1,17 +1,19 @@
 from config_parser import ConfigParser
-from mazegen.maze_generator import MazeGenerator
-from maze_display import MazeDisplay
+#from maze_display import MazeDisplay
 from sys import argv
-
+from mazegen.maze_generator import MazeGenerator
 
 def main():
-    """Execute the maze generation and display pipeline.
+    """
+Execute the maze generation and display pipeline.
 
-    Parses the configuration file path provided via command-line arguments,
-    initializes the configuration settings, and launches the maze application interface.
+Parses the configuration file path provided via command-line
+arguments, initializes the configuration settings, and launches
+the maze application interface.
 
-    Raises:
-        Exception: If an error occurs while reading or parsing the configuration file.
+Raises:
+    Exception: If an error occurs while reading or parsing the
+    configuration file.
     """
     if len(argv) != 2:
         print("Not enough parameters.")
@@ -23,8 +25,10 @@ def main():
     except Exception as e:
         raise Exception(f"Error in parsing config file: {e}")
     conf_dict = {k.lower(): v for (k, v) in conf_dict.items()}
-    display = MazeDisplay(conf_dict)
-    display.run()
+    mz = MazeGenerator(**conf_dict)
+    mz.generate_maze()
+    #display = MazeDisplay(conf_dict)
+    #display.run()
 
 
 if __name__ == "__main__":

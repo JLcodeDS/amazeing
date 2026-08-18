@@ -2,13 +2,16 @@ from typing import Callable, Any
 
 
 class ConfigParser:
-    """A parser for reading, type-casting, and validating configuration files
+    """
+    A parser for reading, type-casting, and validating
+    configuration files.
 
     used for grid or maze generation settings.
     """
 
     def __init__(self, filename: str) -> None:
-        """Initializes the ConfigParser with a target configuration file.
+        """
+        Initializes the ConfigParser with a target configuration file.
 
         Args:
             filename (str): The path to the configuration file to be parsed.
@@ -47,14 +50,15 @@ class ConfigParser:
         self.filename = filename
 
     def read_config(self) -> None:
-        """Reads the configuration file line by line, ignoring comments (#),
+        """
+        Reads the configuration file line by line, ignoring comments (#),
 
         parsing key-value pairs, casting them to their respective types, and
         storing them in the configuration dictionary.
 
         Raises:
             Exception: If an invalid key, unsupported format, or invalid
-              value is encountered.
+            value is encountered.
         """
         with open(self.filename) as file:
             for line in file.readlines():
@@ -85,14 +89,15 @@ class ConfigParser:
                         )
 
     def validate_dims(self) -> None:
-        """Validates the dimensions, entry points, and exit points loaded in
+        """
+        Validates the dimensions, entry points, and exit points loaded in
 
         the configuration dictionary to ensure they meet constraints (e.g.,
         minimum size, valid bounds).
 
         Raises:
-            Exception: If dimensions are too small, entry and exit are identical,
-              or coordinates fall outside the grid bounds.
+            Exception: If dimensions are too small, entry and exit are
+            identical, or coordinates fall outside the grid bounds.
         """
         conf = self._config_dict
         w = conf["WIDTH"]
@@ -113,16 +118,18 @@ class ConfigParser:
             raise Exception(f"Invalid Exit coordinates: {ex_dim}")
 
     def get_config(self) -> dict[str, Any]:
-        """Reads and validates the configuration file, then returns the
+        """
+        Reads and validates the configuration file, then returns the
 
         fully populated configuration dictionary.
 
         Returns:
-            dict[str, Any]: The dictionary containing all parsed and validated
-            configuration settings.
+            dict[str, Any]: The dictionary containing all parsed and
+            validated configuration settings.
 
         Raises:
-            Exception: Propagates any parsing or validation errors encountered.
+            Exception: Propagates any parsing or validation errors
+            encountered.
         """
         self.read_config()
         try:
