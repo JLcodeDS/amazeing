@@ -338,7 +338,9 @@ class MazeGenerator:
             isinstance(self.get_cell(exit), Cell42)
         ):
             n_coord = [
-                c.coords for r in self.maze for c in r if isinstance(c, Cell42)
+                (
+                    c.coords[1], c.coords[0]
+                ) for r in self.maze for c in r if isinstance(c, Cell42)
                 ]
             raise Exception(
                 "Error: Entry and Exit are in the 42 logo.\n" +

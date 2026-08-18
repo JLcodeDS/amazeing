@@ -1,7 +1,7 @@
 from config_parser import ConfigParser
-#from maze_display import MazeDisplay
+from maze_display import MazeDisplay
 from sys import argv
-from mazegen.maze_generator import MazeGenerator
+
 
 def main():
     """
@@ -25,10 +25,8 @@ Raises:
     except Exception as e:
         raise Exception(f"Error in parsing config file: {e}")
     conf_dict = {k.lower(): v for (k, v) in conf_dict.items()}
-    mz = MazeGenerator(**conf_dict)
-    mz.generate_maze()
-    #display = MazeDisplay(conf_dict)
-    #display.run()
+    display = MazeDisplay(conf_dict)
+    display.run()
 
 
 if __name__ == "__main__":

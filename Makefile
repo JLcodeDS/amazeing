@@ -13,7 +13,7 @@ all: install mlx
 install:
 	python3 -m venv maze_env
 	$(PIP) install --upgrade pip
-	$(PIP) install flake8 mypy
+	$(PIP) install flake8 mypy pytest
 	@echo "--------------------------------------------------"
 	@echo "Python environment ready!"
 	@echo "--------------------------------------------------"
