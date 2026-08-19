@@ -5,4 +5,3 @@ EXIT=29,19
 OUTPUT_FILE=maze.txt
 # comment
 PERFECT=False
-SEED=None
