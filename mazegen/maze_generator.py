@@ -119,7 +119,7 @@ class Cell:
         return [self.get_move_coords(dir) for dir in self.get_open_walls()]
 
     @staticmethod
-    def heuristic(point1: tuple[int, int], point2: tuple[int, int]):
+    def heuristic(point1: tuple[int, int], point2: tuple[int, int]) -> int:
         """Calculates Manhattan distance between two coordinate tuples.
 
         Args:
@@ -165,8 +165,9 @@ class MazeGenerator:
             entry to exit.
     """
 
-    def __init__(self, entry: tuple, exit: tuple, perfect: bool, width: int,
-                 height: int, output_file: str, seed: int | None = None):
+    def __init__(self, entry: tuple[int, int], exit: tuple[int, int],
+                 perfect: bool, width: int, height: int, output_file: str,
+                 seed: int | None = None) -> None:
         """Initializes parameters and builds the initial cell grid."""
         self.seed = seed if seed is not None else random.randint(0, 999999999)
         self.entry = entry
@@ -203,7 +204,7 @@ class MazeGenerator:
             ]
         return maze
 
-    def make_42_cells(self):
+    def make_42_cells(self) -> None:
         """Embeds a custom '42' cell pattern at the center of the maze grid.
 
         Prints a warning if the current grid dimensions are too small to
@@ -379,7 +380,7 @@ class MazeGenerator:
         with open(self.output_file, "w") as output:
             output.writelines(lines)
 
-    def a_star_search(self):
+    def a_star_search(self) -> None:
         """Solves the maze using the A* search pathfinding algorithm.
 
         Computes the shortest path from entry to exit and stores the list
@@ -413,12 +414,14 @@ class MazeGenerator:
                 cell.parent = current
         shortest_path = [current.coords]
         while current.coords != entry:
+            if current.parent is None:
+                break
             current = current.parent
             shortest_path.append(current.coords)
         shortest_path = shortest_path[::-1]
         self.shortest_path = shortest_path
 
-    def get_best_move(self, allowed: list[Cell]):
+    def get_best_move(self, allowed: list[Cell]) -> Cell:
         """Selects the candidate cell with the lowest estimated
         total cost (f_score).
 
