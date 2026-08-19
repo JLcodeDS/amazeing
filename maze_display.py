@@ -278,12 +278,32 @@ class MazeDisplay:
         )
 
     def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Sequentially draws solution path markers cell-by-cell with
+        a frame delay.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of
+                (row, col) coordinates.
+        """
         self._render_path_sequence(path_coords, "path", animated=True)
 
     def non_animated_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Draws the entire solution path instantly without frame delays.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of
+                (row, col) coordinates.
+        """
         self._render_path_sequence(path_coords, "path", animated=False)
 
     def remove_path(self, path_coords: list[tuple[int, int]]) -> None:
+        """Clears solution path markers by redrawing them using the
+        background color.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of
+                (row, col) coordinates.
+        """
         self._render_path_sequence(path_coords, "bg", animated=False)
 
     def handle_input(self, keycode: int, param: Any = None) -> None:
@@ -325,6 +345,20 @@ class MazeDisplay:
 
     def _render_path_sequence(self, path_coords: list[tuple[int, int]],
                               color_key: str, animated: bool = False) -> None:
+        """Internal utility method to draw or erase a sequence of path cells.
+
+        Handles the geometric rendering of the maze path, retrieving the
+        appropriate color from the active palette, and managing the display
+        synchronization for optional frame-by-frame animation.
+
+        Args:
+            path_coords (list[tuple[int, int]]): Ordered sequence of
+                (row, col) coordinates.
+            color_key (str): Dictionary key to retrieve the target color from
+                the palette (e.g., "path" or "bg").
+            animated (bool, optional): If True, forces an MLX display sync
+                and a time delay after drawing each cell. Defaults to False.
+        """
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         draw_color = palette[color_key]
 
