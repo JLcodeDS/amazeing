@@ -278,80 +278,13 @@ class MazeDisplay:
         )
 
     def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
-        """Sequentially draws solution path markers cell-by-cell with
-        a frame delay.
+        self._render_path_sequence(path_coords, "path", animated=True)
 
-        Args:
-            path_coords (list[tuple[int, int]]): Ordered sequence of
-            (row, col) coordinates.
-        """
-        palette = self.palettes[self.color_palette_index % len(self.palettes)]
-        path_color = palette["path"]
-        corner_radius = 4
-        margin = 6
-        inner_size = self.tile_size - (margin * 2)
-        for y, x in path_coords:
-            px = (x * self.tile_size) + self.offset
-            py = (y * self.tile_size) + self.offset
-            self.draw_rounded_square(
-                        px + margin,
-                        py + margin,
-                        inner_size,
-                        corner_radius,
-                        path_color
-                    )
-            self.mlx.mlx_do_sync(self.mlx_ptr)
-            time.sleep(0.01)
-    
     def non_animated_path(self, path_coords: list[tuple[int, int]]) -> None:
-        """Sequentially draws solution path markers cell-by-cell with
-        a frame delay.
-
-        Args:
-            path_coords (list[tuple[int, int]]): Ordered sequence of
-            (row, col) coordinates.
-        """
-        palette = self.palettes[self.color_palette_index % len(self.palettes)]
-        path_color = palette["path"]
-        corner_radius = 4
-        margin = 6
-        inner_size = self.tile_size - (margin * 2)
-        for y, x in path_coords:
-            px = (x * self.tile_size) + self.offset
-            py = (y * self.tile_size) + self.offset
-            self.draw_rounded_square(
-                        px + margin,
-                        py + margin,
-                        inner_size,
-                        corner_radius,
-                        path_color
-                    )
-        self.mlx.mlx_do_sync(self.mlx_ptr)
+        self._render_path_sequence(path_coords, "path", animated=False)
 
     def remove_path(self, path_coords: list[tuple[int, int]]) -> None:
-        """Clears solution path markers by redrawing them using the
-        background color.
-
-        Args:
-            path_coords (list[tuple[int, int]]): Ordered sequence of
-            (row, col) coordinates.
-        """
-        palette = self.palettes[self.color_palette_index % len(self.palettes)]
-        path_color = palette["bg"]
-        corner_radius = 4
-        margin = 6
-        inner_size = self.tile_size - (margin * 2)
-        for y, x in path_coords:
-            px = (x * self.tile_size) + self.offset
-            py = (y * self.tile_size) + self.offset
-            self.draw_rounded_square(
-                        px + margin,
-                        py + margin,
-                        inner_size,
-                        corner_radius,
-                        path_color
-                    )
-        self.mlx.mlx_do_sync(self.mlx_ptr)
+        self._render_path_sequence(path_coords, "bg", animated=False)
 
     def handle_input(self, keycode: int, param: Any = None) -> None:
         """Event handler processing keyboard inputs for controls
@@ -389,6 +322,27 @@ class MazeDisplay:
         elif keycode == 65307 or keycode == 52:
             self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
             self.mlx.mlx_loop_exit(self.mlx_ptr)
+
+    def _render_path_sequence(self, path_coords: list[tuple[int, int]],
+                              color_key: str, animated: bool = False) -> None:
+        palette = self.palettes[self.color_palette_index % len(self.palettes)]
+        draw_color = palette[color_key]
+
+        corner_radius = 4
+        margin = 6
+        inner_size = self.tile_size - (margin * 2)
+
+        for y, x in path_coords:
+            px = (x * self.tile_size) + self.offset
+            py = (y * self.tile_size) + self.offset
+            self.draw_rounded_square(
+                px + margin, py + margin, inner_size, corner_radius, draw_color
+            )
+            if animated:
+                self.mlx.mlx_do_sync(self.mlx_ptr)
+                time.sleep(0.01)
+        if not animated:
+            self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def run(self) -> None:
         """Generates the initial maze structure, performs initial draw,
