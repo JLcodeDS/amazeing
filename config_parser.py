@@ -25,7 +25,8 @@ class ConfigParser:
             "PERFECT": None,
             "SEED": None,
         }
-        self.config_type: dict[str, Callable] = {
+        self.config_type: dict[
+            str, Callable[[str], str | bool | int | tuple[int,...]]] = {
             "WIDTH": int,
             "HEIGHT": int,
             "ENTRY": lambda x: tuple(int(num) for num in x.split(",")),
@@ -100,9 +101,10 @@ class ConfigParser:
             identical, or coordinates fall outside the grid bounds.
         """
         conf = self._config_dict
-        if True in [conf[param] == None for param in self.required_params]:
+        if True in [conf[param] is None for param in self.required_params]:
             missing = [
-                param for param in conf.keys() if conf[param] == None and param != "SEED"]
+                param for param in conf.keys() if conf[
+                    param] is None and param != "SEED"]
             raise Exception(f"Missing config parameters: {missing}")
         w = conf["WIDTH"]
         h = conf["HEIGHT"]
