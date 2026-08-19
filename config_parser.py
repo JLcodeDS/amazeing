@@ -80,11 +80,15 @@ class ConfigParser:
                                 True if keyval[1] == "True" else False
                             )
                             self._config_dict[keyval[0]] = perfect
+                        if keyval[0] in ["EXIT", "ENTRY"] and (
+                            len(self._config_dict[keyval[0]]) != 2
+                        ):
+                            raise
                     except Exception:
                         value_cln = keyval[1].replace("\n", "")
                         raise Exception(
                             "Key Value pair "
-                            + f"'{keyval[0]} : {value_cln}' "
+                            + f"'{keyval[0]}={value_cln}' "
                             + "is not allowed.\nAllowed keys and value formats are:\n"
                             + self.allowed_types_str
                         )
