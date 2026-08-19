@@ -55,15 +55,25 @@ class MazeDisplay:
         """
         self.maze_dict = maze_dict
         self.maze_gen = MazeGenerator(**maze_dict)
-        self.tile_size = 30
         self.ui_height = 40
         self.offset = 15
 
+        max_screen_w = 1400
+        max_screen_h = 800
+
+        avail_w = max_screen_w - (self.offset * 2)
+        avail_h = max_screen_h - self.ui_height - (self.offset * 2)
+
+        max_tile_w = avail_w // self.maze_gen.width
+        max_tile_h = avail_h // self.maze_gen.height
+
+        self.tile_size = max(2, min(30, max_tile_w, max_tile_h))
+
         self.win_width = (
-            self.maze_gen.width * self.tile_size + (self.offset * 2))
+            self.maze_gen.width * self.tile_size) + (self.offset * 2)
         self.win_height = (
-            (self.maze_gen.height * self.tile_size) + self.ui_height + (
-                self.offset * 2))
+            self.maze_gen.height * self.tile_size) + self.ui_height \
+            + (self.offset * 2)
 
         if sys.platform == "linux":
             ctypes.CDLL("libbsd.so.0", mode=ctypes.RTLD_GLOBAL)
@@ -186,7 +196,7 @@ class MazeDisplay:
 
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         wall_color = palette["wall"]
-        wall_thickness = 5
+        wall_thickness = max(1, self.tile_size // 6)
         for y in range(self.maze_gen.height):
             for x in range(self.maze_gen.width):
                 cell = self.maze_gen.get_cell((y, x))
@@ -194,9 +204,9 @@ class MazeDisplay:
                 py = (y * self.tile_size) + self.offset
                 special_color = self.get_cell_color(cell)
 
-                margin = 5
+                margin = max(1, self.tile_size // 6)
+                corner_radius = max(0, margin - 1)
                 inner_size = self.tile_size - (margin * 2)
-                corner_radius = 2
 
                 self.draw_rectangle(
                     px, py, self.tile_size, self.tile_size, palette["bg"])
@@ -375,8 +385,8 @@ class MazeDisplay:
         palette = self.palettes[self.color_palette_index % len(self.palettes)]
         draw_color = palette[color_key]
 
-        corner_radius = 4
-        margin = 6
+        margin = max(1, self.tile_size // 6)
+        corner_radius = max(0, margin - 1)
         inner_size = self.tile_size - (margin * 2)
 
         for y, x in path_coords:
