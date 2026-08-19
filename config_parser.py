@@ -38,14 +38,14 @@ class ConfigParser:
         self.allowed_types: dict[str, str] = {
             "WIDTH": "int",
             "HEIGHT": "int",
-            "ENTRY": "int, int",
-            "EXIT": "int, int",
+            "ENTRY": "int,int ",
+            "EXIT": "int,int ",
             "OUTPUT_FILE": "str",
             "PERFECT": "bool",
             "SEED": "int",
         }
         self.allowed_types_str = ", ".join(
-            f"{k}: {v}" for k, v in self.allowed_types.items()
+            f"{k}={v}" for k, v in self.allowed_types.items()
         )
         self.required_params = list(self.allowed_types.keys())[:-1]
         self.filename = filename
