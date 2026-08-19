@@ -8,7 +8,7 @@ animated paths, and user interactions.
 import sys
 import ctypes
 import time
-import datetime
+import random
 from mlx import Mlx
 from typing import Any
 from mazegen.maze_generator import Cell, Cell42, MazeGenerator
@@ -266,7 +266,8 @@ class MazeDisplay:
 
         text_color = 0xFFFFFFFF
 
-        menu_text = "1: regen   2: path    3: color    4/esc: quit"
+        menu_text = f"1: regen   2: path    3: color    4/esc: quit|    SEED: \
+                    {self.maze_gen.seed}"
 
         self.mlx.mlx_string_put(
             self.mlx_ptr,
@@ -318,10 +319,11 @@ class MazeDisplay:
         """
         if keycode == 49:
             dict_cpy = self.maze_dict.copy()
-            dict_cpy['seed'] += datetime.datetime.now().second
+            dict_cpy['seed'] = random.randint(0, 999999999)
             self.show_path = False
             self.maze_gen = MazeGenerator(**dict_cpy)
             self.maze_gen.generate_maze()
+            print(f"Maze regenerated with SEED: {self.maze_gen.seed}")
             self.draw_maze()
 
         elif keycode == 50:
@@ -382,6 +384,7 @@ class MazeDisplay:
         """Generates the initial maze structure, performs initial draw,
         and starts MLX event loop."""
         self.maze_gen.generate_maze()
+        print(f"Maze generated with SEED: {self.maze_gen.seed}")
         self.draw_maze()
         self.mlx.mlx_hook(self.win_ptr, 2, 1, self.handle_input, None)
         self.mlx.mlx_loop(self.mlx_ptr)
