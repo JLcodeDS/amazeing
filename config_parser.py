@@ -38,8 +38,8 @@ class ConfigParser:
         self.allowed_types: dict[str, str] = {
             "WIDTH": "int",
             "HEIGHT": "int",
-            "ENTRY": "tuple[int, int]",
-            "EXIT": "tuple[int, int]",
+            "ENTRY": "int, int",
+            "EXIT": "int, int",
             "OUTPUT_FILE": "str",
             "PERFECT": "bool",
             "SEED": "int",
@@ -85,7 +85,7 @@ class ConfigParser:
                         raise Exception(
                             "Key Value pair "
                             + f"'{keyval[0]} : {value_cln}' "
-                            + "is not allowed.\nAllowed keys and types are: "
+                            + "is not allowed.\nAllowed keys and value formats are:\n"
                             + self.allowed_types_str
                         )
 
