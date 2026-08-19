@@ -391,35 +391,31 @@ class MazeGenerator:
         current = self.get_cell(entry)
         current.g_score = 0
         current.f_score = current.h_score
-        closed_cells = set()
-        open_cells = [current]
+        closed_cells: set[tuple[int, int]] = set()
+        open_cells = {entry: current}
         while len(open_cells):
-            current = self.get_best_move(open_cells)
+            current = self.get_best_move(list(open_cells.values()))
             if current.coords == goal:
                 break
-            open_cells.remove(current)
-            closed_cells.add(current)
-            neighbours = [
-                self.get_cell(x) for x in current.get_allowed_moves()]
-            for cell in neighbours:
-                if cell.coords in [x.coords for x in closed_cells]:
+            del open_cells[current.coords]
+            closed_cells.add(current.coords)
+            for coords in current.get_allowed_moves():
+                if coords in closed_cells:
                     continue
                 new_g = current.g_score + 1
-                if cell.coords not in [x.coords for x in open_cells]:
-                    open_cells.append(cell)
+                cell = self.get_cell(coords)
+                if coords not in open_cells.keys():
+                    open_cells[coords] = cell
                 elif new_g >= cell.g_score:
                     continue
                 cell.g_score = new_g
                 cell.f_score = cell.g_score + cell.h_score
                 cell.parent = current
         shortest_path = [current.coords]
-        while current.coords != entry:
-            if current.parent is None:
-                break
+        while current.coords != entry and current.parent:
             current = current.parent
             shortest_path.append(current.coords)
-        shortest_path = shortest_path[::-1]
-        self.shortest_path = shortest_path
+        self.shortest_path = shortest_path[::-1]
 
     def get_best_move(self, allowed: list[Cell]) -> Cell:
         """Selects the candidate cell with the lowest estimated

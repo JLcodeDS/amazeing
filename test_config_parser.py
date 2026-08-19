@@ -44,7 +44,7 @@ def test_config_parser_valid_file(tmp_path):
         (
             "WIDTH=2\nHEIGHT=10\nENTRY=0,0\nEXIT=1,9\n"
             + "OUTPUT_FILE=out.txt\nPERFECT=True\nSEED=1\n",
-            "Invalid dimensions for WIDTH or HEIGHT.",
+            "Min Values for WIDTH or HEIGHT are W=3 H=3",
         ),
         (
             "WIDTH=10\nHEIGHT=10\nENTRY=0,0\nEXIT=9,9\n"
