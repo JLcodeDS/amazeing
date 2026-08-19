@@ -170,6 +170,7 @@ The roles were fairly evenly distributed throughout the project, especially for 
 * **Vulkan / Graphics Reference**: [LunarG Vulkan SDK](https://vulkan.lunarg.com/) / [MoltenVK Repository](https://github.com/KhronosGroup/MoltenVK)
 * **Maze Algorithms**: https://professor-l.github.io/mazes/ graphical visualization and explanations of different algorithms.
 * **Pathfinding**: https://www.geeksforgeeks.org/dsa/a-search-algorithm/ A star search explanations and some youtube videos (such as https://www.youtube.com/watch?v=qigPctCgR_k) to see it in action for additional clarity.
+* **MiniLibX (MLX)**: man, man(3) directly from the module repository (https://github.com/42school/mlx_CLXV/)
 
 ### AI Usage Disclaimer
 
@@ -178,3 +179,4 @@ AI tools (specifically LLMs) were utilized during development for the following 
 1. **Documentation & Docstrings**: Generating standard Google-style docstrings across Python modules (`mazegen`, `maze_display`, `config_parser`).
 2. **Packaging Guidance**: Assistance in configuring `pyproject.toml` to build `.whl` files under setuptools standards.
 3. **Refactoring Assistance**: Optimizing line lengths and formatting to maintain compliance with 42 PEP8 style standards.
+4. **Rectangles Rounding for MLX**: Assistance in drawing circles in MLX.
