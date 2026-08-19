@@ -18,7 +18,7 @@
 ## Instructions
 
 ### Prerequisites
-- **Python 3.8+**
+- **Python 3.10+**
 - **MiniLibX (MLX)** graphics library bindings installed.
 - **Linux/macOS**: On Linux systems, `libbsd-dev` may be required.
 
@@ -27,7 +27,7 @@
 1. **Clone the repository:**
 ```bash
 git clone <repository-url>
-cd a_maze_ing
+cd <repository>
 ```
 
 2. **(Optional) Install `mazegen` as a standalone Python package:**
@@ -142,13 +142,15 @@ print(f"Shortest path coordinates: {generator.shortest_path}")
 
 ### Roles & Responsibilities
 
-* **[Member 1 Name]**: Architecture setup, `mazegen` package structure, core generation algorithms (DFS backtracker), and file serialization logic.
-* **[Member 2 Name]**: MiniLibX display integration (`MazeDisplay`), color palette design, interactive controls/event hooks, and path animation.
+The roles were fairly evenly distributed throughout the project, especially for the first steps such as the initial config parser and the maze generation algorithms (perfect and imperfect). Then slightly more divided to speed up completion:
+* **arivet**: MiniLibX display integration (`MazeDisplay`), color palette design, interactive controls/event hooks, and path animation.
+* **jludolph**: A star search algorithm implementation and incorporation into the final output file and as a class attribute.
+
 
 ### Initial Planning vs. Reality
 
-* **Original Plan**: Allocate 50% of the project time to generation algorithms, 30% to pathfinding, and 20% to UI setup.
-* **Evolution**: Core maze generation was completed ahead of schedule. However, handling edge cases—such as protecting entry/exit coordinates from overlapping with the embedded "42" logo and smoothing wall joints using circular primitives in MLX—required additional refactoring time.
+* **Original Plan**: We wanted to start with writing the parser, then the generator and the mlx display to visualize and validate the algorithms, then the pathfinding and finally, refactor and polish the docstrings, documentation and packaging.
+* **Evolution**: Core maze generation was completed ahead of schedule. However, handling edge cases—such as protecting entry/exit coordinates from overlapping with the embedded "42" logo and smoothing wall joints using circular primitives in MLX—required took a bit longer than expected.
 
 ### What Worked Well & What Could Be Improved
 
@@ -166,13 +168,13 @@ print(f"Shortest path coordinates: {generator.shortest_path}")
 ## Resources
 
 * **Vulkan / Graphics Reference**: [LunarG Vulkan SDK](https://vulkan.lunarg.com/) / [MoltenVK Repository](https://github.com/KhronosGroup/MoltenVK)
-* **Maze Algorithms**: *Jamis Buck's "Mazes for Programmers"* (DFS Backtracking and Grid Representations)
-* **Pathfinding**: *Stanford CS / Red Blob Games A* Search Guide*
+* **Maze Algorithms**: https://professor-l.github.io/mazes/ graphical visualization and explanations of different algorithms.
+* **Pathfinding**: https://www.geeksforgeeks.org/dsa/a-search-algorithm/ A star search explanations and some youtube videos (such as https://www.youtube.com/watch?v=qigPctCgR_k) to see it in action for additional clarity.
 
 ### AI Usage Disclaimer
 
 AI tools (specifically LLMs) were utilized during development for the following tasks:
 
-1. **Documentation & Docstrings**: Generating standard Google-style docstrings across Python modules (`mazegen`, `maze_display`, `main`).
+1. **Documentation & Docstrings**: Generating standard Google-style docstrings across Python modules (`mazegen`, `maze_display`, `config_parser`).
 2. **Packaging Guidance**: Assistance in configuring `pyproject.toml` to build `.whl` files under setuptools standards.
 3. **Refactoring Assistance**: Optimizing line lengths and formatting to maintain compliance with 42 PEP8 style standards.
