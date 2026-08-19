@@ -85,11 +85,13 @@ class ConfigParser:
                         ):
                             raise
                     except Exception:
-                        value_cln = keyval[1].replace("\n", "")
+                        err_str = f"{keyval[0]}={
+                            keyval[1]}" if len(keyval) > 1 else f"{keyval[0]}"
                         raise Exception(
                             "Key Value pair "
-                            + f"'{keyval[0]}={value_cln}' "
-                            + "is not allowed.\nAllowed keys and value formats are:\n"
+                            + f"'{err_str.replace("\n", "")}'"
+                            + " is not allowed.\n"
+                            + "Allowed keys and value formats are:\n"
                             + self.allowed_types_str
                         )
 
@@ -112,12 +114,16 @@ class ConfigParser:
             raise Exception(f"Missing config parameters: {missing}")
         w = conf["WIDTH"]
         h = conf["HEIGHT"]
+        if w > 150 or h > 80:
+            raise Exception(
+                "Max values for WIDTH and HEIGHT are W=150 H=80.")
+        if h < 3 or w < 3:
+            raise Exception(
+                "Min Values for WIDTH or HEIGHT are W=3 H=3")
         en_dim = conf["ENTRY"]
         ex_dim = conf["EXIT"]
         if en_dim == ex_dim:
             raise Exception("Entry and Exit must be different.")
-        if (w < 3 and h < 3) or (h < 3 or w < 3):
-            raise Exception("Invalid dimensions for WIDTH or HEIGHT.")
         if (en_dim[0] < 0 or en_dim[0] > w) or (
             en_dim[1] < 0 or en_dim[1] > h
         ):
