@@ -25,7 +25,8 @@ class ConfigParser:
             "PERFECT": None,
             "SEED": None,
         }
-        self.config_type: dict[str, Callable] = {
+        self.config_type: dict[
+            str, Callable[[str], str | bool | int | tuple[int, ...]]] = {
             "WIDTH": int,
             "HEIGHT": int,
             "ENTRY": lambda x: tuple(int(num) for num in x.split(",")),
@@ -37,14 +38,14 @@ class ConfigParser:
         self.allowed_types: dict[str, str] = {
             "WIDTH": "int",
             "HEIGHT": "int",
-            "ENTRY": "tuple[int, int]",
-            "EXIT": "tuple[int, int]",
+            "ENTRY": "int,int ",
+            "EXIT": "int,int ",
             "OUTPUT_FILE": "str",
             "PERFECT": "bool",
             "SEED": "int",
         }
         self.allowed_types_str = ", ".join(
-            f"{k}: {v}" for k, v in self.allowed_types.items()
+            f"{k}={v}" for k, v in self.allowed_types.items()
         )
         self.required_params = list(self.allowed_types.keys())[:-1]
         self.filename = filename
@@ -84,7 +85,7 @@ class ConfigParser:
                         raise Exception(
                             "Key Value pair "
                             + f"'{keyval[0]} : {value_cln}' "
-                            + "is not allowed.\nAllowed keys and types are: "
+                            + "is not allowed.\nAllowed keys and value formats are:\n"
                             + self.allowed_types_str
                         )
 
@@ -100,9 +101,10 @@ class ConfigParser:
             identical, or coordinates fall outside the grid bounds.
         """
         conf = self._config_dict
-        if True in [conf[param] == None for param in self.required_params]:
+        if True in [conf[param] is None for param in self.required_params]:
             missing = [
-                param for param in conf.keys() if conf[param] == None and param != "SEED"]
+                param for param in conf.keys() if conf[
+                    param] is None and param != "SEED"]
             raise Exception(f"Missing config parameters: {missing}")
         w = conf["WIDTH"]
         h = conf["HEIGHT"]
