@@ -46,7 +46,7 @@ class ConfigParser:
         self.allowed_types_str = ", ".join(
             f"{k}: {v}" for k, v in self.allowed_types.items()
         )
-
+        self.required_params = list(self.allowed_types.keys())[:-1]
         self.filename = filename
 
     def read_config(self) -> None:
@@ -100,6 +100,10 @@ class ConfigParser:
             identical, or coordinates fall outside the grid bounds.
         """
         conf = self._config_dict
+        if True in [conf[param] == None for param in self.required_params]:
+            missing = [
+                param for param in conf.keys() if conf[param] == None and param != "SEED"]
+            raise Exception(f"Missing config parameters: {missing}")
         w = conf["WIDTH"]
         h = conf["HEIGHT"]
         en_dim = conf["ENTRY"]

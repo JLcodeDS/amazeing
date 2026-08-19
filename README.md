@@ -104,7 +104,7 @@ We selected **Randomized Depth-First Search (DFS) with Backtracking** for maze g
 
 ### Pathfinding: A* Search
 
-The solver utilizes the **A* Search algorithm** with Manhattan distance as its heuristic function ($h(n) = \vert{}\Delta x\vert{} + \vert{}\Delta y\vert{}$). A* guarantees finding the shortest path while exploring fewer total nodes than unguided search algorithms like Dijkstra or BFS.
+The solver utilizes the **A\* Search algorithm** with Manhattan distance as its heuristic function ($h(n) = \vert{}\Delta x\vert{} + \vert{}\Delta y\vert{}$). A* guarantees finding the shortest path while exploring fewer total nodes than unguided search algorithms like Dijkstra or BFS.
 
 ---
 
