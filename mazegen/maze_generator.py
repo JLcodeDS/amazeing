@@ -165,10 +165,10 @@ class MazeGenerator:
             entry to exit.
     """
 
-    def __init__(self, seed: int, entry: tuple, exit: tuple,
-                 perfect: bool, width: int, height: int, output_file: str):
+    def __init__(self, entry: tuple, exit: tuple, perfect: bool, width: int,
+                 height: int, output_file: str, seed: int | str | None = None):
         """Initializes parameters and builds the initial cell grid."""
-        self.seed = seed
+        self.seed = seed if seed is not None else random.randint(0, 999999999)
         self.entry = entry
         self.exit = exit
         self.width = width
