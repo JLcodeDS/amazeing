@@ -257,25 +257,36 @@ class MazeDisplay:
         self.mlx.mlx_do_sync(self.mlx_ptr)
 
     def draw_ui(self) -> None:
-        """Renders the command shortcut reference menu at the bottom
-        of the window."""
-        text_y = (
-            self.maze_gen.height * self.tile_size) + self.offset + (
-                self.ui_height // 2)
+        """Renders the command shortcut reference menu and the current seed
+        at the bottom of the window on two separate lines."""
+
+        # On calcule le centre de la zone d'UI
+        base_y = (
+            self.maze_gen.height * self.tile_size) + self.offset + \
+            (self.ui_height // 2)
         text_x = self.offset
 
         text_color = 0xFFFFFFFF
 
-        menu_text = f"1: regen   2: path    3: color    4/esc: quit|    SEED: \
-                    {self.maze_gen.seed}"
+        menu_text = "1: regen   2: path    3: color    4/esc: quit"
+        seed_text = f"SEED: {self.maze_gen.seed}"
 
         self.mlx.mlx_string_put(
             self.mlx_ptr,
             self.win_ptr,
             text_x,
-            text_y,
+            base_y - 12,
             text_color,
             menu_text
+        )
+
+        self.mlx.mlx_string_put(
+            self.mlx_ptr,
+            self.win_ptr,
+            text_x,
+            base_y + 10,
+            text_color,
+            seed_text
         )
 
     def animate_path(self, path_coords: list[tuple[int, int]]) -> None:
