@@ -1,7 +1,11 @@
 PYTHON = maze_env/bin/python3
 PIP = maze_env/bin/pip
-FLAKE8 = flake8
-MYPY = mypy
+FLAKE8 = maze_env/bin/flake8
+MYPY = maze_env/bin/mypy
+PROJECT = mazegen/maze_generator.py \
+		  a_maze_ing.py \
+		  config_parser.py \
+		  maze_display.py \
 
 # Chemins pour le vendoring des librairies locales
 LOCAL_LIBS_DIR = $(CURDIR)/libs
@@ -71,11 +75,11 @@ fclean: clean
 	rm -rf mlx
 
 lint:
-	$(FLAKE8) .
-	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs .
+	$(FLAKE8) $(PROJECT)
+	$(MYPY) --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs $(PROJECT)
 
 lint-strict:
-	$(FLAKE8) .
-	$(MYPY) --strict .
+	$(FLAKE8) $(PROJECT)
+	$(MYPY) --strict $(PROJECT)
 
 .PHONY: all install mlx-download vendor-libs mlx run debug clean fclean lint lint-strict

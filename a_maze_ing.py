@@ -3,7 +3,7 @@ from maze_display import MazeDisplay
 from sys import argv
 
 
-def main():
+def main() -> None:
     """
 Execute the maze generation and display pipeline.
 
