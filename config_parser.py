@@ -26,7 +26,7 @@ class ConfigParser:
             "SEED": None,
         }
         self.config_type: dict[
-            str, Callable[[str], str | bool | int | tuple[int,...]]] = {
+            str, Callable[[str], str | bool | int | tuple[int, ...]]] = {
             "WIDTH": int,
             "HEIGHT": int,
             "ENTRY": lambda x: tuple(int(num) for num in x.split(",")),
