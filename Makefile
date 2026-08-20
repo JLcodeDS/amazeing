@@ -12,7 +12,7 @@ LOCAL_LIBS_DIR = $(CURDIR)/libs
 LOCAL_INCLUDE = $(LOCAL_LIBS_DIR)/usr/include
 LOCAL_LIB_PATH = $(LOCAL_LIBS_DIR)/usr/lib/x86_64-linux-gnu
 
-all: install mlx
+all: install mlx run
 
 install:
 	python3 -m venv maze_env
@@ -23,35 +23,21 @@ install:
 	@echo "--------------------------------------------------"
 
 mlx-download:
-	@if [ ! -d "mlx" ]; then \
+	@if [ ! -d "mlx" && "$$(uname -s)" = "Darwin" ]; then \
 		echo "Cloning MLX repository..."; \
 		git clone https://github.com/42school/mlx_CLXV.git mlx; \
 	else \
 		echo "MLX repository already exists, skipping clone."; \
 	fi
 
-vendor-libs:
-	@if [ "$$(uname -s)" = "Linux" ]; then \
-		echo "Downloading local X11 libraries for Linux..."; \
-		mkdir -p $(LOCAL_LIBS_DIR); \
-		cd $(LOCAL_LIBS_DIR) && apt download libxcb-keysyms1 libxcb-keysyms1-dev; \
-		cd $(LOCAL_LIBS_DIR) && dpkg -x libxcb-keysyms1_*.deb .; \
-		cd $(LOCAL_LIBS_DIR) && dpkg -x libxcb-keysyms1-dev_*.deb .; \
-		cd $(LOCAL_LIBS_DIR) && rm -f *.deb; \
-		echo "Local libraries ready in $(LOCAL_LIBS_DIR)"; \
-	else \
-		echo "Running on macOS, skipping local Linux libraries extraction."; \
-	fi
-
 mlx: mlx-download vendor-libs
-	@if [ "$$(uname -s)" = "Linux" ]; then \
-		echo "Configuring and compiling MLX with local X11 libraries..."; \
-		cd mlx && export C_INCLUDE_PATH="$(LOCAL_INCLUDE)" && export LIBRARY_PATH="$(LOCAL_LIB_PATH)" && $(MAKE) BACKEND=xcb; \
-	else \
+	@if [ "$$(uname -s)" =  "Darwin" ];then \
 		echo "Configuring and compiling MLX for macOS..."; \
 		cd mlx && $(MAKE) BACKEND=appkit; \
+		$(PIP) install mlx/mlx-*.whl --force-reinstall; \
+	else \
+		$(PIP) install mlx-*.whl --force-reinstall; \
 	fi
-	$(PIP) install mlx/mlx-*.whl --force-reinstall
 
 run:
 	@if [ "$$(uname -s)" = "Linux" ]; then \
@@ -81,5 +67,7 @@ lint:
 lint-strict:
 	$(FLAKE8) $(PROJECT)
 	$(MYPY) --strict $(PROJECT)
+
+re: fclean all
 
 .PHONY: all install mlx-download vendor-libs mlx run debug clean fclean lint lint-strict
