@@ -5,8 +5,6 @@ Utilizes MiniLibX (MLX) bindings to render maze grids, wall geometry,
 animated paths, and user interactions.
 """
 
-import sys
-import ctypes
 import time
 import random
 from mlx import Mlx  # type: ignore
@@ -74,9 +72,6 @@ class MazeDisplay:
         self.win_height = (
             self.maze_gen.height * self.tile_size) + self.ui_height \
             + (self.offset * 2)
-
-        if sys.platform == "linux":
-            ctypes.CDLL("libbsd.so.0", mode=ctypes.RTLD_GLOBAL)
 
         self.mlx = Mlx()
         self.mlx_ptr = self.mlx.mlx_init()
