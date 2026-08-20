@@ -85,12 +85,14 @@ class ConfigParser:
                         ):
                             raise
                     except Exception:
-                        err_str = f"{keyval[0]}={
-                            keyval[1]}" if len(keyval) > 1 else f"{keyval[0]}"
+                        err_str = (
+                            f"{keyval[0]}={keyval[1]}"
+                            if len(keyval) > 1 else f"{keyval[0]}"
+                        )
                         raise Exception(
-                            "Key Value pair "
-                            + f"'{err_str.replace("\n", "")}'"
-                            + " is not allowed.\n"
+                            "Key Value pair '"
+                            + err_str.replace('\n', '')
+                            + "' is not allowed.\n"
                             + "Allowed keys and value formats are:\n"
                             + self.allowed_types_str
                         )
