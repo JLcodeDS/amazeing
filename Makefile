@@ -23,7 +23,7 @@ install:
 	@echo "--------------------------------------------------"
 
 mlx-download:
-	@if [ ! -d "mlx" && "$$(uname -s)" = "Darwin" ]; then \
+	@if [ ! -d "mlx" ] && [ "$$(uname -s)" = "Darwin" ]; then \
 		echo "Cloning MLX repository..."; \
 		git clone https://github.com/42school/mlx_CLXV.git mlx; \
 	else \
@@ -31,9 +31,9 @@ mlx-download:
 	fi
 
 mlx: mlx-download vendor-libs
-	@if [ "$$(uname -s)" =  "Darwin" ];then \
+	@if [ "$$(uname -s)" =  "Darwin" ]; then \
 		echo "Configuring and compiling MLX for macOS..."; \
-		cd mlx && $(MAKE) BACKEND=appkit; \
+		$(MAKE) -C mlx BACKEND=appkit; \
 		$(PIP) install mlx/mlx-*.whl --force-reinstall; \
 	else \
 		$(PIP) install mlx-*.whl --force-reinstall; \
