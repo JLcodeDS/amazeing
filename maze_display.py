@@ -69,6 +69,8 @@ class MazeDisplay:
 
         self.win_width = (
             self.maze_gen.width * self.tile_size) + (self.offset * 2)
+        if self.win_width < 475:
+            self.win_width = 475
         self.win_height = (
             self.maze_gen.height * self.tile_size) + self.ui_height \
             + (self.offset * 2)
