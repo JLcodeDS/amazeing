@@ -358,6 +358,8 @@ class MazeDisplay:
             if self.show_path:
                 self.draw_maze()
                 self.non_animated_path(coords)
+            else:
+                self.draw_maze()
 
         elif keycode == 65307 or keycode == 52:
             self.mlx.mlx_destroy_window(self.mlx_ptr, self.win_ptr)
