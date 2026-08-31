@@ -23,19 +23,29 @@ install:
 	@echo "--------------------------------------------------"
 
 mlx-download:
-	@if [ ! -d "mlx" ] && [ "$$(uname -s)" = "Darwin" ]; then \
-		echo "Cloning MLX repository..."; \
-		git clone https://github.com/42school/mlx_CLXV.git mlx; \
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
+		if [ ! -d "mlx" ]; then \
+			echo "Cloning MLX repository..."; \
+			git clone https://github.com/42school/mlx_CLXV.git mlx; \
+		else \
+			echo "MLX repository already exists, skipping clone."; \
+		fi \
 	else \
-		echo "MLX repository already exists, skipping clone."; \
+		echo "Linux detected : mlx cloning ignored."; \
 	fi
 
-mlx: mlx-download vendor-libs
-	@if [ "$$(uname -s)" =  "Darwin" ]; then \
+mlx: mlx-download
+	@if [ "$$(uname -s)" = "Darwin" ]; then \
 		echo "Configuring and compiling MLX for macOS..."; \
 		$(MAKE) -C mlx BACKEND=appkit; \
 		$(PIP) install mlx/mlx-*.whl --force-reinstall; \
 	else \
+		if ! ls mlx-*.whl > /dev/null 2>&1; then \
+			echo "Error: mlx-*.whl cannot be found."; \
+			echo "For school computers (Ubuntu 22.04 LTS), download the precompiled wheel from the project ressources on the intra and put it at the root of the project directory."; \
+			exit 1; \
+		fi; \
+		echo "Installation of the precompiled mlx wheel for Linux..."; \
 		$(PIP) install mlx-*.whl --force-reinstall; \
 	fi
 
@@ -70,4 +80,4 @@ lint-strict:
 
 re: fclean all
 
-.PHONY: all install mlx-download vendor-libs mlx run debug clean fclean lint lint-strict
+.PHONY: all install mlx-download mlx run debug clean fclean lint lint-strict
