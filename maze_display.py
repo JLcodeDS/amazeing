@@ -7,7 +7,7 @@ animated paths, and user interactions.
 
 import time
 import random
-from mlx import Mlx
+from mlx import Mlx  # type: ignore
 from typing import Any
 from mazegen.maze_generator import Cell, Cell42, MazeGenerator
 
