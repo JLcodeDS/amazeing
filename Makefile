@@ -31,7 +31,7 @@ mlx-download:
 			echo "MLX repository already exists, skipping clone."; \
 		fi \
 	else \
-		echo "Linux detected : mlx cloning ignored."; \
+		echo "Linux detected: mlx cloning ignored."; \
 	fi
 
 mlx: mlx-download
